@@ -1,7 +1,7 @@
-mod backends;
+mod server;
 mod cli;
 
-use backends::*;
+use server::Query;
 use clap::{App, Arg};
 use cli::formatter::format_ansi_term;
 use std::fs::File;

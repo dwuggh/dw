@@ -1,6 +1,6 @@
 use ansi_term::{ANSIString, Colour, Style};
 
-use crate::backends::WordData;
+use crate::server::WordData;
 
 /// format the string to ansi_term
 pub fn format_ansi_term<'a>(data: &'a WordData) -> String {

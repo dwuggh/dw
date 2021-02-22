@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use crate::backends::google_translate::GTrans;
-use crate::backends::{Backend, Query, WordData};
+use crate::server::backends::google_translate::GTrans;
+use crate::server::{Backend, Query, WordData};
 use crate::cli::config::Config;
 
 pub struct Runner {

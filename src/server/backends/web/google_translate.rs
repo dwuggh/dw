@@ -1,6 +1,6 @@
 use crate::cli::config::Proxy;
 
-use super::super::types::*;
+use crate::server::{Backend, WordData, Query};
 use reqwest;
 use std::sync::Arc;
 
