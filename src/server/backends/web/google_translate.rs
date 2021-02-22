@@ -26,7 +26,7 @@ impl GTrans {
 }
 
 impl Backend for GTrans {
-    fn query<'a>(&self, query: Arc<Query<'a>>) -> Result<WordData<'a>, String> {
+    fn query(&self, query: Arc<Query>) -> Result<WordData, String> {
         let mut client_builder = reqwest::blocking::Client::builder();
         if let Some(http_proxy) = &self.proxy.http_proxy {
             client_builder = client_builder.proxy(reqwest::Proxy::http(http_proxy).unwrap());
@@ -62,3 +62,20 @@ impl Backend for GTrans {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_can_translate_words() {
+        let g = GTrans::new(Proxy {
+            http_proxy: None,
+            https_proxy: None,
+        });
+        let query = Query::new("fuck", "auto", "zh", false);
+        let res = g.query(Arc::new(query)).unwrap().short_desc;
+        assert_eq!(res, "他妈的")
+    }
+}
+

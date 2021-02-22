@@ -6,7 +6,7 @@ use crate::server::WordData;
 pub fn format_ansi_term<'a>(data: &'a WordData) -> String {
     let mut strings: Vec<String> = Vec::new();
     strings.push(Colour::Red.paint(&data.backend).to_string());
-    strings.push(Style::new().bold().paint(data.query.text).to_string());
+    strings.push(Style::new().bold().paint(&data.query.text).to_string());
     if let Some(ps) = &data.phonetic_symbol {
         strings.push(Colour::Red.paint(ps).to_string());
     };

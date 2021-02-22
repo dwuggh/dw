@@ -16,8 +16,8 @@ impl Runner {
         Runner { backends }
     }
 
-    pub fn run<'a>(&self, query: Arc<Query<'a>>) -> Vec<WordData<'a>> {
-        let mut result: Vec<WordData<'a>> = Vec::new();
+    pub fn run<'a>(&self, query: Arc<Query>) -> Vec<WordData> {
+        let mut result: Vec<WordData> = Vec::new();
         // TODO concurrent code
         for backend in &self.backends {
             if let Ok(res) = backend.query(Arc::clone(&query)) {
