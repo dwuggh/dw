@@ -6,6 +6,7 @@ use clap::{App, Arg};
 use cli::formatter::format_ansi_term;
 use std::fs::File;
 use std::{io::prelude::*, sync::Arc};
+use std::rc::Rc;
 
 fn main() -> std::io::Result<()> {
     env_logger::init();
@@ -24,8 +25,8 @@ fn main() -> std::io::Result<()> {
         .get_matches();
 
     // load config
-    let config = server::config::read_config();
-    let runner = server::runner::Runner::new(config);
+    let config = Rc::new(server::config::read_config());
+    let runner = server::runner::Runner::new(Rc::clone(&config));
 
     let mut text = String::new();
     if let Some(file) = matches.value_of("file") {

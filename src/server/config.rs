@@ -15,6 +15,7 @@ pub struct Config {
     pub youdao: Option<YoudaoAPIKey>
 }
 
+pub type ConfigRef = std::rc::Rc<Config>;
 
 #[derive(Deserialize, Debug, Default, Clone)]
 pub struct Proxy {

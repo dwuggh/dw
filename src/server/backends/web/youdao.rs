@@ -1,12 +1,13 @@
-use crate::server::config::{Config, Proxy};
+use crate::server::config::{ConfigRef, Proxy};
 
 use crate::server::{Backend, Query, WordData};
-use reqwest;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::sync::Arc;
 use uuid::Uuid;
+
+use super::new_client_blocking;
 
 #[derive(Deserialize, Debug, Default, Clone)]
 pub struct YoudaoAPIKey {
@@ -21,29 +22,21 @@ pub struct Youdao {
 }
 
 impl Youdao {
-    pub fn new(config: Config) -> Youdao {
+    pub fn new(config: ConfigRef) -> Youdao {
         Youdao {
             url_free: "https://openapi.youdao.com/api".to_owned(),
-            api_key: config.youdao,
-            proxy: config.proxy,
+            api_key: config.youdao.clone(),
+            proxy: config.proxy.clone(),
         }
     }
 }
 
 impl Backend for Youdao {
     fn query(&self, query: Arc<Query>) -> Result<WordData, String> {
-        // TODO
         match &self.api_key {
             Some(api_key) => {
 
-                let mut client_builder = reqwest::blocking::Client::builder();
-                if let Some(http_proxy) = &self.proxy.http_proxy {
-                    client_builder = client_builder.proxy(reqwest::Proxy::http(http_proxy).unwrap());
-                }
-                if let Some(https_proxy) = &self.proxy.https_proxy {
-                    client_builder = client_builder.proxy(reqwest::Proxy::https(https_proxy).unwrap());
-                }
-                let client = client_builder.build().unwrap();
+                let client = new_client_blocking(&self.proxy);
                 // https://ai.youdao.com/DOCSIRMA/html/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E7%BF%BB%E8%AF%91/API%E6%96%87%E6%A1%A3/%E6%96%87%E6%9C%AC%E7%BF%BB%E8%AF%91%E6%9C%8D%E5%8A%A1/%E6%96%87%E6%9C%AC%E7%BF%BB%E8%AF%91%E6%9C%8D%E5%8A%A1-API%E6%96%87%E6%A1%A3.html
                 let salt = Uuid::new_v4().to_string();
                 let text = &query.text;
