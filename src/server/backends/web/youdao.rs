@@ -1,4 +1,4 @@
-use crate::cli::config::{Config, Proxy};
+use crate::server::config::{Config, Proxy};
 
 use crate::server::{Backend, Query, WordData};
 use reqwest;
@@ -35,7 +35,6 @@ impl Backend for Youdao {
         // TODO
         match &self.api_key {
             Some(api_key) => {
-                let api_key = self.api_key.clone().unwrap();
 
                 let mut client_builder = reqwest::blocking::Client::builder();
                 if let Some(http_proxy) = &self.proxy.http_proxy {

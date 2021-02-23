@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
-use crate::server::backends::google_translate::GTrans;
-use crate::server::backends::youdao::Youdao;
-use crate::server::{Backend, Query, WordData};
-use crate::cli::config::Config;
+use super::backends::google_translate::GTrans;
+use super::backends::youdao::Youdao;
+use super::{Backend, Query, WordData};
+use super::config::Config;
 
 pub struct Runner {
     backends: Vec<Box<dyn Backend>>,

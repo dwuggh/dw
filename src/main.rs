@@ -24,8 +24,8 @@ fn main() -> std::io::Result<()> {
         .get_matches();
 
     // load config
-    let config = cli::config::read_config();
-    let runner = cli::runner::Runner::new(config);
+    let config = server::config::read_config();
+    let runner = server::runner::Runner::new(config);
 
     let mut text = String::new();
     if let Some(file) = matches.value_of("file") {

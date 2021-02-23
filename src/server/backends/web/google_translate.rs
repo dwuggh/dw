@@ -1,4 +1,4 @@
-use crate::cli::config::Proxy;
+use crate::server::config::Proxy;
 
 use crate::server::{Backend, WordData, Query};
 use reqwest;
