@@ -12,7 +12,7 @@ pub struct Config {
     pub proxy: Proxy,
 
     #[serde(default)]
-    pub youdao: Option<YoudaoAPIKey>
+    pub youdao: Option<YoudaoAPIKey>,
 }
 
 pub type ConfigRef = std::rc::Rc<Config>;
@@ -27,7 +27,7 @@ pub struct Proxy {
 
 #[derive(Deserialize, Debug, Default)]
 pub struct Backend {
-    pub youdao_api_key: Option<YoudaoAPIKey>
+    pub youdao_api_key: Option<YoudaoAPIKey>,
 }
 
 pub fn read_config() -> Config {

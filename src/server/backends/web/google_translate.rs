@@ -1,6 +1,6 @@
 use crate::server::config::{ConfigRef, Proxy};
 
-use crate::server::{Backend, WordData, Query};
+use crate::server::{Backend, Query, RespData};
 use std::sync::Arc;
 
 use super::new_client_blocking;
@@ -13,7 +13,7 @@ fn _calc_token() {
 pub struct GTrans {
     url_free: String,
     url_voice: String,
-    proxy: Proxy
+    proxy: Proxy,
 }
 
 impl GTrans {
@@ -27,7 +27,7 @@ impl GTrans {
 }
 
 impl Backend for GTrans {
-    fn query(&self, query: Arc<Query>) -> Result<WordData, String> {
+    fn query(&self, query: Arc<Query>) -> Result<RespData, String> {
         let client = new_client_blocking(&self.proxy);
         let params = [
             ("q", &query.text),
@@ -45,13 +45,13 @@ impl Backend for GTrans {
             .unwrap()[0]
             .as_str()
             .unwrap();
-        Ok(WordData {
+        Ok(RespData {
             backend: "google translate".to_owned(),
             query,
             // short_desc: resp.text().unwrap(),
-            short_desc: t.to_owned(),
+            basic_desc: t.to_owned(),
             phonetic_symbol: None,
-            long_desc: None,
+            detail_desc: None,
             audio: None,
         })
     }
@@ -69,4 +69,3 @@ mod tests {
         // assert_eq!(res, "他妈的")
     }
 }
-

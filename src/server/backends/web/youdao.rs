@@ -1,6 +1,6 @@
 use crate::server::config::{ConfigRef, Proxy};
 
-use crate::server::{Backend, Query, WordData};
+use crate::server::{Backend, Query, RespData};
 use serde::Deserialize;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -32,10 +32,9 @@ impl Youdao {
 }
 
 impl Backend for Youdao {
-    fn query(&self, query: Arc<Query>) -> Result<WordData, String> {
+    fn query(&self, query: Arc<Query>) -> Result<RespData, String> {
         match &self.api_key {
             Some(api_key) => {
-
                 let client = new_client_blocking(&self.proxy);
                 // https://ai.youdao.com/DOCSIRMA/html/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E7%BF%BB%E8%AF%91/API%E6%96%87%E6%A1%A3/%E6%96%87%E6%9C%AC%E7%BF%BB%E8%AF%91%E6%9C%8D%E5%8A%A1/%E6%96%87%E6%9C%AC%E7%BF%BB%E8%AF%91%E6%9C%8D%E5%8A%A1-API%E6%96%87%E6%A1%A3.html
                 let salt = Uuid::new_v4().to_string();
@@ -85,24 +84,28 @@ impl Backend for Youdao {
                 if error_code != "0" {
                     return Err(error_code.to_string());
                 }
-                let trans_list: Vec<&str> = resp_data.get("translation").unwrap().as_array().unwrap().into_iter().map(move |v: &Value| {v.as_str().unwrap()}).collect();
+                let trans_list: Vec<&str> = resp_data
+                    .get("translation")
+                    .unwrap()
+                    .as_array()
+                    .unwrap()
+                    .into_iter()
+                    .map(move |v: &Value| v.as_str().unwrap())
+                    .collect();
                 let trans = trans_list.join("\n");
                 // let basic = resp_data.get("basic");
-                Ok(WordData {
+                Ok(RespData {
                     backend: "youdao translate".to_owned(),
                     query,
                     // short_desc: resp.text().unwrap(),
-                    short_desc: trans,
+                    basic_desc: trans,
                     phonetic_symbol: None,
-                    long_desc: None,
+                    detail_desc: None,
                     audio: None,
                 })
             }
-            None => {
-                Err(String::from("no youdao API key"))
-            }
+            None => Err(String::from("no youdao API key")),
         }
-
     }
 }
 

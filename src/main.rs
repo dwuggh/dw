@@ -1,12 +1,12 @@
-mod server;
 mod cli;
+mod server;
 
-use server::Query;
 use clap::{App, Arg};
 use cli::formatter::format_ansi_term;
+use server::Query;
 use std::fs::File;
-use std::{io::prelude::*, sync::Arc};
 use std::rc::Rc;
+use std::{io::prelude::*, sync::Arc};
 
 fn main() -> std::io::Result<()> {
     env_logger::init();

@@ -2,8 +2,8 @@ use std::{rc::Rc, sync::Arc};
 
 use super::backends::google_translate::GTrans;
 use super::backends::youdao::Youdao;
-use super::{Backend, Query, WordData};
 use super::config::ConfigRef;
+use super::{Backend, Query, RespData};
 
 pub struct Runner {
     backends: Vec<Box<dyn Backend>>,
@@ -18,8 +18,8 @@ impl Runner {
         Runner { backends }
     }
 
-    pub fn run<'a>(&self, query: Arc<Query>) -> Vec<WordData> {
-        let mut result: Vec<WordData> = Vec::new();
+    pub fn run<'a>(&self, query: Arc<Query>) -> Vec<RespData> {
+        let mut result: Vec<RespData> = Vec::new();
         // TODO concurrent code
         for backend in &self.backends {
             match backend.query(Arc::clone(&query)) {

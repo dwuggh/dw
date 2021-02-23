@@ -1,6 +1,6 @@
 use std::fs::File;
-use std::path::PathBuf;
 use std::io::prelude::*;
+use std::path::PathBuf;
 use xdg::BaseDirectories;
 
 use super::config::Config;
@@ -25,8 +25,8 @@ impl History {
         if self.file.is_file() {
             let mut file = File::open(self.file.to_str().unwrap())?;
             file.read_to_string(&mut self.content)?;
-        } else {}
+        } else {
+        }
         Ok(())
     }
 }
-
