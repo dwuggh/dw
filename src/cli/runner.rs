@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use crate::server::backends::google_translate::GTrans;
+use crate::server::backends::youdao::Youdao;
 use crate::server::{Backend, Query, WordData};
 use crate::cli::config::Config;
 
@@ -11,7 +12,8 @@ pub struct Runner {
 impl Runner {
     pub fn new(config: Config) -> Self {
         let mut backends: Vec<Box<dyn Backend>> = Vec::new();
-        backends.push(Box::new(GTrans::new(config.proxy)));
+        backends.push(Box::new(GTrans::new(config.proxy.clone())));
+        backends.push(Box::new(Youdao::new(config.clone())));
 
         Runner { backends }
     }
@@ -20,8 +22,13 @@ impl Runner {
         let mut result: Vec<WordData> = Vec::new();
         // TODO concurrent code
         for backend in &self.backends {
-            if let Ok(res) = backend.query(Arc::clone(&query)) {
-                result.push(res);
+            match backend.query(Arc::clone(&query)) {
+                Ok(res) => {
+                    result.push(res);
+                }
+                Err(e) => {
+                    println!("error: {}", e);
+                }
             }
         }
         result
