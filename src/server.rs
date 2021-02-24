@@ -6,3 +6,4 @@ pub mod transformer;
 pub mod types;
 
 pub use types::*;
+pub use history::History;
