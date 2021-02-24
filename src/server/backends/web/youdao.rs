@@ -36,6 +36,7 @@ unsafe impl Sync for Youdao {}
 
 impl Backend for Youdao {
     fn query(&self, query: Arc<Query>) -> Result<RespData, String> {
+        log::info!("requesting youdao translate");
         match &self.api_key {
             Some(api_key) => {
                 let client = new_client_blocking(&self.proxy);
@@ -65,24 +66,26 @@ impl Backend for Youdao {
                 let mut hasher = Sha256::new();
                 hasher.update(sign);
                 sign = format!("{:X}", hasher.finalize());
+                let lang_from = Youdao::map_lang(&query.lang_from);
+                let lang_to = Youdao::map_lang(&query.lang_to);
 
                 let params = [
                     ("q", &query.text),
-                    ("from", &query.lang_from),
-                    ("to", &query.lang_to),
+                    ("from", &lang_from),
+                    ("to", &lang_to),
                     ("appKey", &api_key.id),
                     ("salt", &salt),
                     ("sign", &sign),
                     ("signType", &"v3".into()),
                     ("curtime", &curtime),
+                    // audio
                     // ("ext", &"TODO".into()),
                     ("strict", &"false".into()),
                 ];
 
-                log::debug!("{:?}", params);
                 let resp = client.post(&self.url_free).form(&params).send().unwrap();
                 let resp_data: Value = resp.json().unwrap();
-                log::debug!("{:?}", resp_data);
+                log::debug!("raw data from youdao translate: {:?}", resp_data);
                 let error_code = resp_data.get("errorCode").unwrap().as_str().unwrap();
                 if error_code != "0" {
                     return Err(error_code.to_string());
@@ -112,10 +115,12 @@ impl Backend for Youdao {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_can_translate_words() {}
+impl Youdao {
+    fn map_lang(lang_code: &str) -> String {
+        if lang_code == "zh" {
+            String::from("zh-CHS")
+        } else {
+            lang_code.to_string()
+        }
+    }
 }

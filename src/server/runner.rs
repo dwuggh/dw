@@ -35,7 +35,7 @@ impl Runner {
                         h.handle(res);
                     }
                     Err(e) => {
-                        println!("error: {}", e);
+                        eprintln!("server::runner::Runner::run error: {}", e);
                     }
                 });
             }

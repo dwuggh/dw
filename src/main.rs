@@ -45,7 +45,7 @@ fn main() -> std::io::Result<()> {
     }
     log::info!("query string: {}", text);
 
-    let query = Arc::new(Query::new(&text, "en", "zh", false));
+    let query = Arc::new(Query::new(&text, "auto", "zh", false));
     runner.run(query, Arc::new(AnsiTermHandler));
     Ok(())
 }

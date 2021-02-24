@@ -31,6 +31,7 @@ unsafe impl Sync for GTrans {}
 
 impl Backend for GTrans {
     fn query(&self, query: Arc<Query>) -> Result<RespData, String> {
+        log::info!("requesting youdao translate");
         let client = new_client_blocking(&self.proxy);
         let params = [
             ("q", &query.text),
@@ -42,7 +43,8 @@ impl Backend for GTrans {
 
         let resp = client.post(&self.url_free).form(&params).send().unwrap();
         let resp_data: serde_json::Value = resp.json().unwrap();
-        log::debug!("{:?}", resp_data);
+        log::debug!("raw data from google translate: {:?}", resp_data);
+        // TODO figure out google translate's response format
         let t = resp_data.as_array().unwrap()[0].as_array().unwrap()[0]
             .as_array()
             .unwrap()[0]
