@@ -1,10 +1,9 @@
 use std::sync::Arc;
 
-use crate::server::{Backend, Query, RespData};
+use crate::server::{Backend, Query};
 
 use super::super::config::{Config, ConfigRef};
 use super::google_translate::GTrans;
-use super::youdao::Youdao;
 
 fn new_empty_config() -> ConfigRef {
     let config = Config::default();

@@ -1,4 +1,4 @@
-use crate::server::config::{ConfigRef, Proxy};
+use crate::server::config::Proxy;
 use reqwest;
 
 pub mod google_translate;

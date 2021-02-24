@@ -12,7 +12,7 @@ fn _calc_token() {
 
 pub struct GTrans {
     url_free: String,
-    url_voice: String,
+    _url_voice: String,
     proxy: Proxy,
 }
 
@@ -20,7 +20,7 @@ impl GTrans {
     pub fn new(config: ConfigRef) -> GTrans {
         GTrans {
             url_free: "https://translate.google.cn/translate_a/single?client=gtx&dt=t".to_owned(),
-            url_voice: "https: //translate.google.cn/translate_tts?ie=UTF-8&client=t&prev=input&q={}&tl=en&total=1&idx=0&textlen=4&tk={}".to_owned(),
+            _url_voice: "https: //translate.google.cn/translate_tts?ie=UTF-8&client=t&prev=input&q={}&tl=en&total=1&idx=0&textlen=4&tk={}".to_owned(),
             proxy: config.proxy.clone()
         }
     }
@@ -59,18 +59,5 @@ impl Backend for GTrans {
             detail_desc: None,
             audio: None,
         })
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_can_translate_words() {
-        // let g = GTrans::new();
-        // let query = Query::new("fuck", "auto", "zh", false);
-        // let res = g.query(Arc::new(query)).unwrap().short_desc;
-        // assert_eq!(res, "他妈的")
     }
 }

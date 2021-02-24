@@ -2,7 +2,7 @@ mod cli;
 mod server;
 
 use clap::{App, Arg};
-use cli::formatter::{format_ansi_term, AnsiTermHandler};
+use cli::formatter::AnsiTermHandler;
 use server::Query;
 use std::fs::File;
 use std::rc::Rc;

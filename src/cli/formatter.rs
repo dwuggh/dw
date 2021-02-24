@@ -1,4 +1,4 @@
-use ansi_term::{ANSIString, Colour, Style};
+use ansi_term::{Colour, Style};
 
 use crate::server::runner::Handler;
 use crate::server::RespData;
@@ -18,7 +18,7 @@ impl Handler for AnsiTermHandler {
 }
 
 /// format the string to ansi_term
-pub fn format_ansi_term(data: &RespData) -> String {
+fn format_ansi_term(data: &RespData) -> String {
     let mut strings: Vec<String> = Vec::new();
     strings.push(Colour::Red.paint(&data.backend).to_string());
     strings.push(Style::new().bold().paint(&data.query.text).to_string());

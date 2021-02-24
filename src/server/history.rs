@@ -11,7 +11,8 @@ pub struct History {
 }
 
 impl History {
-    pub fn new(config: Config) -> Self {
+    #[allow(dead_code)]
+    pub fn new(_config: Config) -> Self {
         let dir = BaseDirectories::with_prefix("dw").unwrap();
         let mut h = History {
             file: dir.place_data_file("dw.history").unwrap(),
@@ -21,6 +22,7 @@ impl History {
         h
     }
 
+    #[allow(dead_code)]
     pub fn load(&mut self) -> std::io::Result<()> {
         if self.file.is_file() {
             let mut file = File::open(self.file.to_str().unwrap())?;
