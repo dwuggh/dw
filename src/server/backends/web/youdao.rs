@@ -31,6 +31,9 @@ impl Youdao {
     }
 }
 
+unsafe impl Send for Youdao {}
+unsafe impl Sync for Youdao {}
+
 impl Backend for Youdao {
     fn query(&self, query: Arc<Query>) -> Result<RespData, String> {
         match &self.api_key {

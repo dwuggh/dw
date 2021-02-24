@@ -1,12 +1,19 @@
-use std::{rc::Rc, sync::Arc};
+use std::rc::Rc;
+use std::sync::Arc;
 
 use super::backends::google_translate::GTrans;
 use super::backends::youdao::Youdao;
 use super::config::ConfigRef;
 use super::{Backend, Query, RespData};
+use crossbeam::thread;
 
 pub struct Runner {
     backends: Vec<Box<dyn Backend>>,
+}
+
+pub trait Handler: Send + Sync {
+    type Result;
+    fn handle(&self, resp: RespData) -> Self::Result;
 }
 
 impl Runner {
@@ -18,19 +25,21 @@ impl Runner {
         Runner { backends }
     }
 
-    pub fn run<'a>(&self, query: Arc<Query>) -> Vec<RespData> {
-        let mut result: Vec<RespData> = Vec::new();
-        // TODO concurrent code
-        for backend in &self.backends {
-            match backend.query(Arc::clone(&query)) {
-                Ok(res) => {
-                    result.push(res);
-                }
-                Err(e) => {
-                    println!("error: {}", e);
-                }
+    pub fn run<H: Handler>(&self, query: Arc<Query>, handler: Arc<H>) {
+        thread::scope(|s| {
+            for backend in &self.backends {
+                let q = Arc::clone(&query);
+                let h = Arc::clone(&handler);
+                s.spawn(move |_| match backend.query(q) {
+                    Ok(res) => {
+                        h.handle(res);
+                    }
+                    Err(e) => {
+                        println!("error: {}", e);
+                    }
+                });
             }
-        }
-        result
+        })
+        .unwrap();
     }
 }

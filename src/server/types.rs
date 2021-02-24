@@ -49,6 +49,6 @@ impl Query {
 }
 
 /// Backend for searching words. Can be dictserver, mdd/mdx, or online searching.
-pub trait Backend {
+pub trait Backend: Send + Sync {
     fn query(&self, query: std::sync::Arc<Query>) -> Result<RespData, String>;
 }

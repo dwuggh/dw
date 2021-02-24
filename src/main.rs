@@ -2,7 +2,7 @@ mod cli;
 mod server;
 
 use clap::{App, Arg};
-use cli::formatter::format_ansi_term;
+use cli::formatter::{format_ansi_term, AnsiTermHandler};
 use server::Query;
 use std::fs::File;
 use std::rc::Rc;
@@ -46,10 +46,6 @@ fn main() -> std::io::Result<()> {
     log::info!("query string: {}", text);
 
     let query = Arc::new(Query::new(&text, "en", "zh", false));
-    let result = runner.run(query);
-    for res in result {
-        let format_string = format_ansi_term(&res);
-        println!("{}", format_string);
-    }
+    runner.run(query, Arc::new(AnsiTermHandler));
     Ok(())
 }

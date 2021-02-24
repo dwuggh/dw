@@ -26,6 +26,9 @@ impl GTrans {
     }
 }
 
+unsafe impl Send for GTrans {}
+unsafe impl Sync for GTrans {}
+
 impl Backend for GTrans {
     fn query(&self, query: Arc<Query>) -> Result<RespData, String> {
         let client = new_client_blocking(&self.proxy);
