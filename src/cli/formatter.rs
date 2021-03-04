@@ -25,8 +25,17 @@ fn format_ansi_term(data: &RespData) -> String {
     let from_to = format!("{} to {}", data.query.lang_from, data.query.lang_to);
     strings.push(from_to);
 
-    if let Some(ps) = &data.phonetic_symbol {
-        strings.push(Colour::Red.paint(ps).to_string());
+    if let Some(pss) = &data.phonetic_symbol {
+        let mut ps_string = String::new();
+        for (lang, ps) in pss {
+            ps_string.push_str(&format!(
+                "{}: {}",
+                Style::new().italic().paint(lang).to_string(),
+                Colour::Blue.paint(ps).to_string()
+            ));
+            ps_string.push('\t');
+        }
+        strings.push(ps_string);
     };
     // if query words & phrases, use green colour
     if data.query.is_short_text {

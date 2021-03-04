@@ -35,11 +35,11 @@ impl Runner {
                         h.handle(res);
                     }
                     Err(e) => {
-                        eprintln!("server::runner::Runner::run error: {}", e);
+                        eprintln!("{}", e);
                     }
                 });
             }
         })
-        .unwrap();
+        .expect("server::runner::Runner::run error");
     }
 }

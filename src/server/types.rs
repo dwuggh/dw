@@ -9,7 +9,7 @@ pub struct RespData {
     pub query: std::sync::Arc<Query>,
     /// basic description about words or sentences' translation.
     pub basic_desc: String,
-    pub phonetic_symbol: Option<String>,
+    pub phonetic_symbol: Option<Vec<(String, String)>>,
     /// detail description for the words.
     pub detail_desc: Option<String>,
     // TODO just placeholder for now

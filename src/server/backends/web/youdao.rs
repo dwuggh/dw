@@ -90,6 +90,71 @@ impl Backend for Youdao {
                 if error_code != "0" {
                     return Err(error_code.to_string());
                 }
+                // get lang_from and lang_to
+                let langs: Vec<&str> = resp_data
+                    .get("l")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .split('2')
+                    .collect();
+                let lang_from = langs[0];
+                let lang_to = langs[1];
+
+                // only exists when looking up a word
+                if let Some(basic) = resp_data.get("basic") {
+                    if lang_from == "en" {
+                        log::debug!("{:?}", basic);
+
+                        // phonetics
+                        let mut ps: Vec<(String, String)> = Vec::new();
+                        if let Some(us_phonetic) = basic.get("us-phonetic") {
+                            let us_phonetic = us_phonetic.as_str().unwrap().to_string();
+                            ps.push(("us".to_string(), format!("/{}/", us_phonetic)));
+                        }
+                        if let Some(uk_phonetic) = basic.get("uk-phonetic") {
+                            let uk_phonetic = uk_phonetic.as_str().unwrap().to_string();
+                            ps.push(("us".to_string(), format!("/{}/", uk_phonetic)));
+                        }
+
+
+                        // explains
+                        let explains: String = basic
+                            .get("explains")
+                            .unwrap()
+                            .as_array()
+                            .unwrap()
+                            .into_iter()
+                            .fold(String::new(), |mut x: String, y: &Value| {
+                                x.push_str(y.as_str().unwrap());
+                                x.push_str(";\t");
+                                x
+                            });
+                        return Ok(RespData {
+                            backend: "youdao translate".to_owned(),
+                            query,
+                            // short_desc: resp.text().unwrap(),
+                            basic_desc: explains,
+                            phonetic_symbol: Some(ps),
+                            detail_desc: None,
+                            audio: None,
+                        });
+                    } else {
+                        // if not english, only word explanation
+                        let trans = basic.get("explains").unwrap().as_str().unwrap().to_string();
+                        return Ok(RespData {
+                            backend: "youdao translate".to_owned(),
+                            query,
+                            // short_desc: resp.text().unwrap(),
+                            basic_desc: trans,
+                            phonetic_symbol: None,
+                            detail_desc: None,
+                            audio: None,
+                        });
+                    }
+                }
+
+                // translation, always exist
                 let trans_list: Vec<&str> = resp_data
                     .get("translation")
                     .unwrap()
