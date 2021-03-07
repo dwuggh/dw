@@ -29,7 +29,6 @@ impl HistoryItem {
 }
 
 impl History {
-    #[allow(dead_code)]
     pub fn new(_config: Rc<Config>) -> Self {
         let dir = BaseDirectories::with_prefix("dw").unwrap();
         let mut h = History {
@@ -40,7 +39,6 @@ impl History {
         h
     }
 
-    #[allow(dead_code)]
     pub fn load(&mut self) -> std::io::Result<()> {
         if self.file.is_file() {
             let mut file = File::open(self.file.to_str().unwrap())?;
