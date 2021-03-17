@@ -50,15 +50,23 @@ impl Backend for Youdao {
                     .to_string();
                 let mut sign = String::new();
                 sign.push_str(&api_key.id);
-                if text.len() <= 20 {
+                // utf-8 length
+                let text_len = text.chars().count();
+                if text_len <= 20 {
                     sign.push_str(text);
                 } else {
-                    let l = text.len();
-                    let beg = &text[..10];
-                    let end = &text[(l - 10)..l];
-                    sign.push_str(beg);
-                    sign.push_str(&l.to_string());
-                    sign.push_str(end);
+                    let beg: String = text.chars().take(10).collect();
+                    let end: String = text
+                        .chars()
+                        .rev()
+                        .take(10)
+                        .collect::<String>()
+                        .chars()
+                        .rev()
+                        .collect();
+                    sign.push_str(&beg);
+                    sign.push_str(&text_len.to_string());
+                    sign.push_str(&end);
                 }
                 sign.push_str(&salt);
                 sign.push_str(&curtime);
@@ -117,19 +125,8 @@ impl Backend for Youdao {
                             ps.push(("us".to_string(), format!("/{}/", uk_phonetic)));
                         }
 
-
                         // explains
-                        let explains: String = basic
-                            .get("explains")
-                            .unwrap()
-                            .as_array()
-                            .unwrap()
-                            .into_iter()
-                            .fold(String::new(), |mut x: String, y: &Value| {
-                                x.push_str(y.as_str().unwrap());
-                                x.push_str(";\t");
-                                x
-                            });
+                        let explains: String = parse_explains_field(basic);
                         return Ok(RespData {
                             backend: "youdao translate".to_owned(),
                             query,
@@ -141,7 +138,7 @@ impl Backend for Youdao {
                         });
                     } else {
                         // if not english, only word explanation
-                        let trans = basic.get("explains").unwrap().as_str().unwrap().to_string();
+                        let trans = parse_explains_field(basic);
                         return Ok(RespData {
                             backend: "youdao translate".to_owned(),
                             query,
@@ -188,4 +185,18 @@ impl Youdao {
             lang_code.to_string()
         }
     }
+}
+
+fn parse_explains_field(basic: &Value) -> String {
+    basic
+        .get("explains")
+        .unwrap()
+        .as_array()
+        .unwrap()
+        .into_iter()
+        .fold(String::new(), |mut x: String, y: &Value| {
+            x.push_str(y.as_str().unwrap());
+            x.push_str(";\t");
+            x
+        })
 }

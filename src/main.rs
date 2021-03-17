@@ -3,7 +3,8 @@ mod server;
 
 use clap::{App, Arg};
 use cli::formatter::AnsiTermHandler;
-use server::{Query, History};
+use server::transformer::identify_language;
+use server::{History, Query};
 use std::fs::File;
 use std::rc::Rc;
 use std::{io::prelude::*, sync::Arc};
@@ -26,14 +27,13 @@ fn main() -> std::io::Result<()> {
             Arg::new("lang_origin")
                 .about("origin language of the querying text")
                 .short('o')
-                .long("lang-origin")
-                .default_value("en")
-        ).arg(
+                .long("lang-origin"),
+        )
+        .arg(
             Arg::new("lang_target")
                 .about("the language to be translated into")
                 .short('t')
-                .long("lang-target")
-                .default_value("zh")
+                .long("lang-target"),
         )
         .get_matches();
 
@@ -60,8 +60,20 @@ fn main() -> std::io::Result<()> {
         ));
     }
     log::info!("query string: {}", text);
-    let lang_from = matches.value_of("lang_origin").unwrap();
-    let lang_to = matches.value_of("lang_target").unwrap();
+    let lang_from = match matches.value_of("lang_origin") {
+        Some(lang) => lang,
+        None => identify_language(&text),
+    };
+    let lang_to = match matches.value_of("lang_target") {
+        Some(lang) => lang,
+        None => {
+            if lang_from == "zh" {
+                "en"
+            } else {
+                "zh"
+            }
+        }
+    };
 
     let query = Arc::new(Query::new(&text, lang_from, lang_to, false));
     if query.is_short_text {
