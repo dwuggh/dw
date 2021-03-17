@@ -5,10 +5,20 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::Cursor;
 use std::path::PathBuf;
+use dashmap::DashMap;
 
 /// full information for a word in mdict
-#[derive(Debug)]
-struct Word {}
+#[derive(Debug, PartialEq, Eq, Clone)]
+struct Word {
+    word: String
+}
+
+
+impl std::hash::Hash for Word {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        std::hash::Hash::hash(&self.word, state)
+    }
+}
 
 // TODO use serde
 /// stylesheet attribute if present takes form of:
@@ -57,7 +67,7 @@ pub struct MDD {
     pub header: MetaInfo,
 
     // words
-    dict: evmap::handles::ReadHandle<String, Word>,
+    dict_map: DashMap<String, Word>,
 }
 
 impl MDD {
@@ -65,7 +75,19 @@ impl MDD {
         let mut f = std::io::BufReader::new(File::open(mdd_file_path)?);
         // let mut reader = std::io::BufReader::new(f);
         let header = MetaInfo::parse_header(&mut f)?;
+        // let (dict_read, mut dict_write) = evmap::new();
+        let dict_map = DashMap::new();
+        
+        let mdd = MDD {
+            file_path: mdd_file_path.to_string(),
+            header,
+            dict_map,
+        };
 
+        return Ok(mdd);
+    }
+
+    fn read_key_block(&mut self) {
         todo!()
     }
 }
@@ -174,8 +196,6 @@ impl MetaInfo {
         return map;
     }
 }
-
-impl MDD {}
 
 pub fn read_utf16_string(slice: &[u8]) -> Option<String> {
     // assert!(2 * size <= slice.len());
