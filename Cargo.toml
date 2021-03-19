@@ -20,6 +20,7 @@ uuid = { version = "0.8", features = ["serde", "v4"] }
 sha2 = "0.9"
 crossbeam = "0.8"
 chrono = { version = "0.4", features = ["alloc", "std", "clock", "serde"] }
+whatlang = "0.6.0"
 mdict = { path = "lib/mdict" }
 
 [workspace]
