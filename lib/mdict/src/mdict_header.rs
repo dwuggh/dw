@@ -271,7 +271,7 @@ impl MDictHeader {
         Ok(key_list)
     }
 
-    fn read_u8_or_u16(&self, f: &mut impl Read) -> std::io::Result<Vec<u8>> {
+    pub(crate) fn read_u8_or_u16(&self, f: &mut impl Read) -> std::io::Result<Vec<u8>> {
         if self.encoding == "UTF-16" {
             f.read_u16::<BigEndian>()
                 .map(|x| u16::to_le_bytes(x).to_vec())
@@ -280,7 +280,7 @@ impl MDictHeader {
         }
     }
 
-    fn read_number<R: Read>(&self, f: &mut R) -> std::io::Result<u64> {
+    pub(crate) fn read_number<R: Read>(&self, f: &mut R) -> std::io::Result<u64> {
         if self.version < 2.0 {
             f.read_u32::<BigEndian>().map(|x| x as u64)
         } else {
@@ -385,17 +385,3 @@ impl MDictHeader {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_can_parse_header_and_key_blocks() -> Result<(), std::io::Error> {
-        let _ = env_logger::builder().is_test(true).try_init();
-        // let mdd_file_path = "/home/dwuggh/.dicts/OALDcn8/oald.mdd";
-        let mdx_file_path = "/home/dwuggh/.dicts/OALDcn8/oald.mdx";
-        let mut f = std::fs::File::open(mdx_file_path)?;
-        let header = MDictHeader::parse_header(&mut f)?;
-        header.read_keys(&mut f).map(|_| ())
-    }
-}

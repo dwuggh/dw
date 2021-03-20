@@ -19,7 +19,7 @@ impl std::hash::Hash for Word {
 /// the first element is key_id, the second is the key itself, normally a word or phrase.
 /// A typical KeyList item: (348951919, "zero tolerances")
 /// TODO maybe using a hashmap here?
-type KeyList = Vec<(u64, String)>;
+pub(crate) type KeyList = Vec<(u64, String)>;
 
 /// MDict stores the dictionary definitions, i.e. (key word, explanation) in MDX file and
 /// the dictionary reference data, e.g. images, pronunciations, stylesheets in MDD file.
