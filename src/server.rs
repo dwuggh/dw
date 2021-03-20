@@ -5,5 +5,5 @@ pub mod runner;
 pub mod transformer;
 pub mod types;
 
-pub use types::*;
 pub use history::History;
+pub use types::*;

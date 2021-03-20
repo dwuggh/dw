@@ -32,8 +32,7 @@ pub fn identify_language(text: &str) -> &str {
 
     if is_chinese {
         "zh"
-    }
-    else {
+    } else {
         "en"
     }
 }
@@ -56,4 +55,3 @@ mod tests {
         assert_eq!(guess, "en")
     }
 }
-

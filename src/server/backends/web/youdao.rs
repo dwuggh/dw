@@ -107,7 +107,7 @@ impl Backend for Youdao {
                     .split('2')
                     .collect();
                 let lang_from = langs[0];
-                let lang_to = langs[1];
+                let _lang_to = langs[1];
 
                 // only exists when looking up a word
                 if let Some(basic) = resp_data.get("basic") {

@@ -1,8 +1,8 @@
-use std::{fs::File, rc::Rc};
+use chrono::prelude::*;
 use std::io::prelude::*;
 use std::path::PathBuf;
+use std::{fs::File, rc::Rc};
 use xdg::BaseDirectories;
-use chrono::prelude::*;
 
 use super::config::Config;
 
@@ -45,16 +45,19 @@ impl History {
             log::info!("loading history from file: {:?}", self.file);
             let mut buf = String::new();
             file.read_to_string(&mut buf)?;
-            let items: Vec<HistoryItem> = buf.split_terminator('\n').map(|line| {
-                let a: Vec<&str> = line.splitn(3, ' ').collect();
-                let item = HistoryItem {
-                    time: DateTime::parse_from_rfc3339(a[0]).unwrap().into(),
-                    text: a[2].to_string(),
-                    lang: a[1].to_string(),
-                };
-                log::debug!("loaded history item: {:?}", item);
-                item
-            }).collect();
+            let items: Vec<HistoryItem> = buf
+                .split_terminator('\n')
+                .map(|line| {
+                    let a: Vec<&str> = line.splitn(3, ' ').collect();
+                    let item = HistoryItem {
+                        time: DateTime::parse_from_rfc3339(a[0]).unwrap().into(),
+                        text: a[2].to_string(),
+                        lang: a[1].to_string(),
+                    };
+                    log::debug!("loaded history item: {:?}", item);
+                    item
+                })
+                .collect();
             self.items = items;
         } else {
         }
@@ -68,7 +71,13 @@ impl History {
     pub fn dump(&self) -> std::io::Result<()> {
         let mut f = File::create(&self.file)?;
         for item in &self.items {
-            writeln!(&mut f, "{} {} {}", item.time.to_rfc3339(), item.lang, &item.text)?;
+            writeln!(
+                &mut f,
+                "{} {} {}",
+                item.time.to_rfc3339(),
+                item.lang,
+                &item.text
+            )?;
         }
         Ok(())
     }
