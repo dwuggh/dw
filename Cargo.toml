@@ -1,25 +1,25 @@
 [package]
 name = "dw"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["dwuggh <dwuggh@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-log = "0.4"
-env_logger = "0.8.3"
-reqwest = { version = "0.11", features = ["blocking", "json", "socks"] }
+log = "^0.4"
+env_logger = "^0.8"
+reqwest = { version = "^0.11", features = ["blocking", "json", "socks"] }
 clap = "3.0.0-beta.2"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-ansi_term = "0.12"
-toml = "0.5.8"
+serde_json = "^1.0"
+ansi_term = "^0.12"
+toml = "^0.5"
 xdg = "^2.1"
-uuid = { version = "0.8", features = ["serde", "v4"] }
-sha2 = "0.9"
-crossbeam = "0.8"
-chrono = { version = "0.4", features = ["alloc", "std", "clock", "serde"] }
+uuid = { version = "^0.8", features = ["serde", "v4"] }
+sha2 = "^0.9"
+crossbeam = "^0.8"
+chrono = { version = "^0.4", features = ["alloc", "std", "clock", "serde"] }
 whatlang = "0.6.0"
 mdict = { path = "lib/mdict" }
 
