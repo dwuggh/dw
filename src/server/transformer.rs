@@ -2,17 +2,50 @@
 
 pub trait Transformer {
     /// perform the transform
-    fn act<'a>(&self, text: &'a mut str) -> &'a str;
+    fn act(&self, text: &str) -> String;
 }
 
-#[allow(dead_code)]
-pub enum TF {
-    Concat,
+/// replace linebreaks with witespace
+#[derive(Debug, Clone, Copy)]
+pub struct Concat {
+    /// Threshold number of consecutive linebreaks for which marking a real linebreak.
+    /// Default value is 2.
+    pub n: usize,
 }
 
-impl Transformer for TF {
-    fn act<'a>(&self, _text: &'a mut str) -> &'a str {
-        todo!()
+impl Concat {
+    pub fn new(n: usize) -> Self {
+        Self { n }
+    }
+}
+
+impl Default for Concat {
+    fn default() -> Self {
+        Concat::new(2)
+    }
+}
+
+// TODO treat \n\n as \n
+impl Transformer for Concat {
+    fn act(&self, text: &str) -> String {
+        let mut c = 0;
+        let mut result = String::new();
+        for str in text.split(|c| c == '\n') {
+            if str.is_empty() {
+                c = c + 1;
+            } else {
+                if c + 1 >= self.n {
+                    result.pop();
+                    result.push('\n');
+                }
+                c = 0;
+                result.push_str(str);
+                result.push(' ')
+            }
+        }
+        // the last char must be empty, unless `text` is empty already.
+        result.pop();
+        result
     }
 }
 
@@ -53,5 +86,19 @@ mod tests {
         let text = "Without delay the sun and moon sped fast, In swift succession spring and autumn passed";
         let guess = identify_language(text);
         assert_eq!(guess, "en")
+    }
+
+    #[test]
+    fn can_concat_lines() {
+        let text = "欲买桂花同载酒\n终不似 少年游";
+        let transfromed = Concat::default().act(&text);
+        assert_eq!(transfromed, "欲买桂花同载酒 终不似 少年游");
+    }
+
+    #[test]
+    fn can_identify_real_linebreaks() {
+        let text = "欲买桂花同载酒\n\n\n终不似\n少年游";
+        let transfromed = Concat::default().act(&text);
+        assert_eq!(transfromed, "欲买桂花同载酒\n终不似 少年游");
     }
 }

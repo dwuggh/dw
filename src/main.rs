@@ -4,15 +4,17 @@ mod server;
 use clap::{App, Arg};
 use cli::formatter::AnsiTermHandler;
 use server::transformer::identify_language;
+use server::transformer::{Concat, Transformer};
 use server::{History, Query};
 use std::fs::File;
 use std::rc::Rc;
 use std::{io::prelude::*, sync::Arc};
 
+
 fn main() -> std::io::Result<()> {
     env_logger::init();
     let matches = App::new("dw")
-        .version("0.1.0")
+        .version("0.1.1")
         .author("dwuggh <dwuggh@gmail.com>")
         .about("dict wowo")
         .arg(Arg::new("INPUT").about("input").required(false).index(1))
@@ -59,6 +61,7 @@ fn main() -> std::io::Result<()> {
             "query string is empty",
         ));
     }
+    text = Concat::default().act(&text);
     log::info!("query string: {}", text);
     let lang_from = match matches.value_of("lang_origin") {
         Some(lang) => lang,
