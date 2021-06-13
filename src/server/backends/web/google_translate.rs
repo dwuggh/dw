@@ -45,16 +45,17 @@ impl Backend for GTrans {
         let resp_data: serde_json::Value = resp.json().unwrap();
         log::debug!("raw data from google translate: {:?}", resp_data);
         // TODO figure out google translate's response format
-        let t = resp_data.as_array().unwrap()[0].as_array().unwrap()[0]
-            .as_array()
-            .unwrap()[0]
-            .as_str()
-            .unwrap();
+        let t = resp_data.as_array().unwrap()[0].as_array().unwrap();
+        let mut trans_text = String::new();
+        for item in t {
+            let trans_sentence = item.as_array().unwrap()[0].as_str().unwrap();
+            trans_text.push_str(trans_sentence);
+        }
         Ok(RespData {
             backend: "google translate".to_owned(),
             query,
             // short_desc: resp.text().unwrap(),
-            basic_desc: t.to_owned(),
+            basic_desc: trans_text,
             phonetic_symbol: None,
             detail_desc: None,
             audio: None,
