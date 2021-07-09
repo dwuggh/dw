@@ -12,9 +12,9 @@ use std::{io::prelude::*, sync::Arc};
 async fn main() -> std::io::Result<()> {
     env_logger::init();
     let matches = App::new("dw")
-        .version("0.1.1")
+        .version("0.2.0")
         .author("dwuggh <dwuggh@gmail.com>")
-        .about("dict wowo")
+        .about("A simple dictionary wrapper.")
         .arg(Arg::new("INPUT").about("input").required(false).index(1))
         .arg(
             Arg::new("file")
