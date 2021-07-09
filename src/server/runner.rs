@@ -5,36 +5,36 @@ use super::backends::google_translate::GTrans;
 use super::backends::youdao::Youdao;
 use super::formatter::Formatter;
 use super::{Backend, Query};
-use crossbeam::thread;
 
 pub struct Runner {
-    backends: Vec<Box<dyn Backend>>,
+    backends: Vec<Arc<Backend>>,
 }
 
 impl Runner {
     pub fn new() -> Self {
-        let mut backends: Vec<Box<dyn Backend>> = Vec::new();
-        backends.push(Box::new(GTrans::new()));
-        backends.push(Box::new(Youdao::new()));
+        let mut backends = Vec::new();
+        backends.push(Arc::new(Backend::GTrans(GTrans::new())));
+        backends.push(Arc::new(Backend::Youdao(Youdao::new())));
 
         Runner { backends }
     }
 
-    pub fn run(&self, query: Arc<Query>, formatter: Formatter) {
-        thread::scope(|s| {
-            for backend in &self.backends {
-                let q = Arc::clone(&query);
-                s.spawn(move |_| match backend.query(q) {
+    pub async fn run(&self, query: Arc<Query>, formatter: Formatter) {
+        for backend in &self.backends {
+            let backend = Arc::clone(backend);
+            let q = Arc::clone(&query);
+            log::debug!("running backend {:?}", backend);
+            tokio::task::spawn(async move {
+                match backend.query(q).await {
                     Ok(res) => {
-                        let str = formatter.format(&res);
-                        print!("{}", str);
+                        println!("{}", formatter.format(&res))
                     }
                     Err(e) => {
-                        eprintln!("{}", e);
+                        log::error!("query error: {}", e);
+                        eprintln!("{}", e)
                     }
-                });
-            }
-        })
-        .expect("server::runner::Runner::run error");
+                }
+            }).await.unwrap();
+        }
     }
 }

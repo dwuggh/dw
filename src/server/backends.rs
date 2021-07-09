@@ -24,7 +24,11 @@ mod tests {
         crate::server::config::init().unwrap();
         let g = GTrans::new();
         let query = query_fuck();
-        let resp = g.query(Arc::clone(&query)).unwrap();
+        let rt = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        let resp = rt.block_on(g.query(Arc::clone(&query))).unwrap();
         assert_eq!(resp.basic_desc, "他妈的")
     }
 }

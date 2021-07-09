@@ -6,7 +6,7 @@ use sha2::{Digest, Sha256};
 use std::sync::Arc;
 use uuid::Uuid;
 
-use super::new_client_blocking;
+use super::new_client;
 
 #[derive(Deserialize, Debug, Default, Clone)]
 pub struct YoudaoAPIKey {
@@ -14,6 +14,7 @@ pub struct YoudaoAPIKey {
     pub id: String,
 }
 
+#[derive(Clone, Debug)]
 pub struct Youdao {
     url_free: String,
     api_key: Option<YoudaoAPIKey>,
@@ -31,12 +32,12 @@ impl Youdao {
 unsafe impl Send for Youdao {}
 unsafe impl Sync for Youdao {}
 
-impl Backend for Youdao {
-    fn query(&self, query: Arc<Query>) -> Result<RespData, String> {
+impl Youdao {
+    pub async fn query(&self, query: Arc<Query>) -> Result<RespData, String> {
         log::info!("requesting youdao translate");
         match &self.api_key {
             Some(api_key) => {
-                let client = new_client_blocking();
+                let client = new_client();
                 // https://ai.youdao.com/DOCSIRMA/html/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E7%BF%BB%E8%AF%91/API%E6%96%87%E6%A1%A3/%E6%96%87%E6%9C%AC%E7%BF%BB%E8%AF%91%E6%9C%8D%E5%8A%A1/%E6%96%87%E6%9C%AC%E7%BF%BB%E8%AF%91%E6%9C%8D%E5%8A%A1-API%E6%96%87%E6%A1%A3.html
                 let salt = Uuid::new_v4().to_string();
                 let text = &query.text;
@@ -88,8 +89,8 @@ impl Backend for Youdao {
                     ("strict", &"false".into()),
                 ];
 
-                let resp = client.post(&self.url_free).form(&params).send().unwrap();
-                let resp_data: Value = resp.json().unwrap();
+                let resp = client.post(&self.url_free).form(&params).send().await.unwrap();
+                let resp_data: Value = resp.json().await.unwrap();
                 log::debug!("raw data from youdao translate: {:?}", resp_data);
                 let error_code = resp_data.get("errorCode").unwrap().as_str().unwrap();
                 if error_code != "0" {

@@ -8,7 +8,8 @@ use server::{History, Query};
 use std::fs::File;
 use std::{io::prelude::*, sync::Arc};
 
-fn main() -> std::io::Result<()> {
+#[tokio::main]
+async fn main() -> std::io::Result<()> {
     env_logger::init();
     let matches = App::new("dw")
         .version("0.1.1")
@@ -80,7 +81,7 @@ fn main() -> std::io::Result<()> {
     if query.is_short_text {
         history.add(&query.text, &query.lang_from);
     }
-    runner.run(query, Formatter::AnsiTerm);
+    runner.run(query, Formatter::AnsiTerm).await;
     history.dump()?;
     Ok(())
 }

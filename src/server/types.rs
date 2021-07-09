@@ -1,3 +1,5 @@
+use super::backends::{google_translate::GTrans, youdao::Youdao};
+
 /// TODO audio type
 #[derive(Debug)]
 pub struct Audio;
@@ -49,6 +51,22 @@ impl Query {
 }
 
 /// Backend for searching words. Can be dictserver, mdd/mdx, or online searching.
-pub trait Backend: Send + Sync {
-    fn query(&self, query: std::sync::Arc<Query>) -> Result<RespData, String>;
+#[derive(Clone, Debug)]
+pub enum Backend {
+    Youdao(Youdao),
+    GTrans(GTrans)
+}
+
+impl Backend {
+    pub async fn query(&self, query: std::sync::Arc<Query>) -> Result<RespData, String> {
+        match self {
+            Backend::Youdao(youdao) => {
+                youdao.query(query).await
+            }
+            Backend::GTrans(gtrans) => {
+                gtrans.query(query).await
+            }
+        }
+    }
+    
 }
