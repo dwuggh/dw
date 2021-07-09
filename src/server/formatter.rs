@@ -1,8 +1,8 @@
-mod ANSITermFormatter;
-mod MDFormatter;
+mod ansiterm;
+mod md;
 
-pub use ANSITermFormatter::format_ansi_term;
-pub use MDFormatter::format_markdown;
+pub use ansiterm::format_ansi_term;
+pub use md::format_markdown;
 
 use super::RespData;
 

@@ -6,7 +6,6 @@ use server::transformer::identify_language;
 use server::transformer::{Concat, Transformer};
 use server::{History, Query};
 use std::fs::File;
-use std::rc::Rc;
 use std::{io::prelude::*, sync::Arc};
 
 fn main() -> std::io::Result<()> {
@@ -40,9 +39,10 @@ fn main() -> std::io::Result<()> {
     log::debug!("get clap matches: {:?}", matches);
 
     // load config
-    let config = Rc::new(server::config::read_config());
-    let runner = server::runner::Runner::new(Rc::clone(&config));
-    let mut history = History::new(Rc::clone(&config));
+    // TODO better error handling
+    server::config::init().unwrap();
+    let runner = server::runner::Runner::new();
+    let mut history = History::new();
 
     let mut text = String::new();
     if let Some(file) = matches.value_of("file") {

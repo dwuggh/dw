@@ -1,8 +1,8 @@
+mod mdd;
 mod mdict;
 mod mdict_header;
 mod mdx;
 mod utils;
-
 
 #[cfg(test)]
 mod tests {

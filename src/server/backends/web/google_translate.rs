@@ -1,5 +1,3 @@
-use crate::server::config::{ConfigRef, Proxy};
-
 use crate::server::{Backend, Query, RespData};
 use std::sync::Arc;
 
@@ -13,15 +11,14 @@ fn _calc_token() {
 pub struct GTrans {
     url_free: String,
     _url_voice: String,
-    proxy: Proxy,
 }
 
 impl GTrans {
-    pub fn new(config: ConfigRef) -> GTrans {
+    pub fn new() -> GTrans {
         GTrans {
             url_free: "https://translate.google.cn/translate_a/single?client=gtx&dt=t".to_owned(),
-            _url_voice: "https: //translate.google.cn/translate_tts?ie=UTF-8&client=t&prev=input&q={}&tl=en&total=1&idx=0&textlen=4&tk={}".to_owned(),
-            proxy: config.proxy.clone()
+            _url_voice: "https: //translate.google.cn/translate_tts?ie=UTF-8&client=t&prev
+=input&q={}&tl=en&total=1&idx=0&textlen=4&tk={}".to_owned(),
         }
     }
 }
@@ -32,7 +29,7 @@ unsafe impl Sync for GTrans {}
 impl Backend for GTrans {
     fn query(&self, query: Arc<Query>) -> Result<RespData, String> {
         log::info!("requesting youdao translate");
-        let client = new_client_blocking(&self.proxy);
+        let client = new_client_blocking();
         let params = [
             ("q", &query.text),
             ("tl", &query.lang_to),

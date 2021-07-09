@@ -2,8 +2,22 @@ use serde::Deserialize;
 use std::fs::File;
 use std::io::prelude::*;
 
+
 use crate::server::backends::youdao::YoudaoAPIKey;
 extern crate xdg;
+
+use once_cell::sync::OnceCell;
+
+static CONFIG: OnceCell<Config> = OnceCell::new();
+
+pub fn init() -> Result<(), Config> {
+    CONFIG.set(read_config())
+}
+
+pub fn get() -> &'static Config {
+    CONFIG.get().unwrap()
+}
+
 
 #[derive(Deserialize, Debug, Default, Clone)]
 pub struct Config {
@@ -14,8 +28,6 @@ pub struct Config {
     #[serde(default)]
     pub youdao: Option<YoudaoAPIKey>,
 }
-
-pub type ConfigRef = std::rc::Rc<Config>;
 
 #[derive(Deserialize, Debug, Default, Clone)]
 pub struct Proxy {
@@ -39,10 +51,12 @@ pub fn read_config() -> Config {
     let mut config_buf = String::new();
     if let Some(config_path) = xdg_dirs.find_config_file("config.toml") {
         read_config_from_file(config_path, &mut config_buf).expect("failed to read config file");
+        let config: Config = toml::from_str(&config_buf).expect("cannot parse config file");
+        log::info!("loaded config: {:?}", config);
+        config
+    } else {
+        Config::default()
     }
-    let config: Config = toml::from_str(&config_buf).expect("cannot parse config file");
-    log::info!("loaded config: {:?}", config);
-    config
 }
 
 #[cfg(test)]

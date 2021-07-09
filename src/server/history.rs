@@ -1,10 +1,8 @@
 use chrono::prelude::*;
 use std::io::prelude::*;
 use std::path::PathBuf;
-use std::{fs::File, rc::Rc};
+use std::fs::File;
 use xdg::BaseDirectories;
-
-use super::config::Config;
 
 pub struct History {
     file: PathBuf,
@@ -29,7 +27,7 @@ impl HistoryItem {
 }
 
 impl History {
-    pub fn new(_config: Rc<Config>) -> Self {
+    pub fn new() -> Self {
         let dir = BaseDirectories::with_prefix("dw").unwrap();
         let mut h = History {
             file: dir.place_data_file("dw.history").unwrap(),

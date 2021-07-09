@@ -22,6 +22,7 @@ crossbeam = "^0.8"
 chrono = { version = "^0.4", features = ["alloc", "std", "clock", "serde"] }
 whatlang = "0.6.0"
 mdict = { path = "lib/mdict" }
+once_cell = "1.8"
 
 [workspace]
 members = [
