@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use byteorder::ReadBytesExt;
 use byteorder::{BigEndian, LittleEndian};
 use flate2::read::ZlibDecoder;
@@ -40,7 +42,10 @@ impl MDictHeader {
 
         log::info!("number of record blocks: {}", num_record_blocks);
         log::info!("number of entries: {}", _num_record_entries);
-        log::info!("number of bytes of record block info: {}", record_block_info_size);
+        log::info!(
+            "number of bytes of record block info: {}",
+            record_block_info_size
+        );
         log::info!("number of bytes of record block: {}", record_block_size);
 
         // info section
@@ -113,8 +118,7 @@ impl MDictHeader {
 
                 // TODO should decode first, as record_text is encoded in self.encoding
                 let record_text = std::str::from_utf8(&record_text_bytes).unwrap();
-                log::debug!("{}", record_text);
-                println!("{}", record_text);
+                log::debug!("key_text: {}, record_text: {}", key_text, record_text);
 
                 record_list.push(Word::new(key_text.to_string(), record_text.to_string()));
             }

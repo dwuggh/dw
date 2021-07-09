@@ -384,4 +384,3 @@ impl MDictHeader {
         return map;
     }
 }
-
