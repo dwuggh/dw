@@ -4,16 +4,12 @@ use std::sync::Arc;
 use super::backends::google_translate::GTrans;
 use super::backends::youdao::Youdao;
 use super::config::ConfigRef;
+use super::formatter::Formatter;
 use super::{Backend, Query, RespData};
 use crossbeam::thread;
 
 pub struct Runner {
     backends: Vec<Box<dyn Backend>>,
-}
-
-pub trait Handler: Send + Sync {
-    type Result;
-    fn handle(&self, resp: RespData) -> Self::Result;
 }
 
 impl Runner {
@@ -25,14 +21,14 @@ impl Runner {
         Runner { backends }
     }
 
-    pub fn run<H: Handler>(&self, query: Arc<Query>, handler: Arc<H>) {
+    pub fn run(&self, query: Arc<Query>, formatter: Formatter) {
         thread::scope(|s| {
             for backend in &self.backends {
                 let q = Arc::clone(&query);
-                let h = Arc::clone(&handler);
                 s.spawn(move |_| match backend.query(q) {
                     Ok(res) => {
-                        h.handle(res);
+                        let str = formatter.format(&res);
+                        print!("{}", str);
                     }
                     Err(e) => {
                         eprintln!("{}", e);

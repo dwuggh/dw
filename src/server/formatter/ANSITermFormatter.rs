@@ -1,24 +1,8 @@
+use crate::server::RespData;
 use ansi_term::{Colour, Style};
 
-use crate::server::runner::Handler;
-use crate::server::RespData;
-
-pub struct AnsiTermHandler;
-
-unsafe impl Send for AnsiTermHandler {}
-unsafe impl Sync for AnsiTermHandler {}
-
-impl Handler for AnsiTermHandler {
-    type Result = ();
-
-    fn handle(&self, resp: RespData) -> Self::Result {
-        let output = format_ansi_term(&resp);
-        println!("{}\n", output);
-    }
-}
-
 /// format the string to ansi_term
-fn format_ansi_term(data: &RespData) -> String {
+pub fn format_ansi_term(data: &RespData) -> String {
     let mut strings: Vec<String> = Vec::new();
     strings.push(Colour::Red.paint(&data.backend).to_string());
     strings.push(Style::new().bold().paint(&data.query.text).to_string());

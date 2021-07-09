@@ -1,15 +1,13 @@
-mod cli;
 mod server;
 
 use clap::{App, Arg};
-use cli::formatter::AnsiTermHandler;
+use server::formatter::Formatter;
 use server::transformer::identify_language;
 use server::transformer::{Concat, Transformer};
 use server::{History, Query};
 use std::fs::File;
 use std::rc::Rc;
 use std::{io::prelude::*, sync::Arc};
-
 
 fn main() -> std::io::Result<()> {
     env_logger::init();
@@ -82,7 +80,7 @@ fn main() -> std::io::Result<()> {
     if query.is_short_text {
         history.add(&query.text, &query.lang_from);
     }
-    runner.run(query, Arc::new(AnsiTermHandler));
+    runner.run(query, Formatter::AnsiTerm);
     history.dump()?;
     Ok(())
 }

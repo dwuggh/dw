@@ -2,6 +2,7 @@ use crate::server::config::Proxy;
 use reqwest;
 
 pub mod google_translate;
+mod google_translate_token;
 pub mod youdao;
 
 pub fn new_client_blocking(proxy: &Proxy) -> reqwest::blocking::Client {
