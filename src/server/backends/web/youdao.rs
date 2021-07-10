@@ -1,4 +1,4 @@
-use crate::server::{Backend, Query, RespData};
+use crate::server::{Query, RespData};
 use crate::server::config;
 use serde::Deserialize;
 use serde_json::Value;

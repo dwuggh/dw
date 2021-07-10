@@ -1,4 +1,4 @@
-use crate::server::{Backend, Query, RespData};
+use crate::server::{Query, RespData};
 use std::sync::Arc;
 
 use super::new_client;

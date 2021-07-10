@@ -1,39 +1,47 @@
 #![allow(dead_code)]
+#![allow(unused)]
 
 use byteorder::ReadBytesExt;
 use byteorder::{BigEndian, LittleEndian};
 use flate2::read::ZlibDecoder;
 use std::io::{Cursor, Read};
 
-use crate::mdict::KeyList;
+use crate::mdict::{Binarys, Datas, KeyList, Words};
 use crate::mdict_header::MDictHeader;
 use crate::utils::assert_adler32_checksum;
 
 type RecordBlockInfoList = Vec<(usize, usize)>;
 
-#[derive(Debug)]
-pub struct Word {
-    key_text: String,
-    record_text: String,
-}
-
-impl Word {
-    fn new(key_text: String, record_text: String) -> Self {
-        Self {
-            key_text,
-            record_text,
-        }
-    }
-}
-
-type Words = Vec<Word>;
 
 impl MDictHeader {
+    pub fn mdd_decode_record_block(
+        &self,
+        f: &mut impl Read,
+        key_list: KeyList,
+    ) -> std::io::Result<Binarys> {
+        self.decode_record_block(f, key_list, |a| a.clone().into())
+    }
+
     pub fn mdx_decode_record_block(
         &self,
         f: &mut impl Read,
         key_list: KeyList,
     ) -> std::io::Result<Words> {
+        self.decode_record_block(f, key_list, |buf| {
+            // TODO should decode first, as record_text is encoded in self.encoding
+            std::str::from_utf8(buf).unwrap().into()
+        })
+    }
+
+    pub fn decode_record_block<T, F>(
+        &self,
+        f: &mut impl Read,
+        key_list: KeyList,
+        data_processor: F,
+    ) -> std::io::Result<Datas<T>>
+    where
+        F: Fn(&[u8]) -> T,
+    {
         let num_record_blocks = self.read_number(f)?;
         // TODO this number should equal to num_entries in key blocks
         let _num_record_entries = self.read_number(f)?;
@@ -46,7 +54,10 @@ impl MDictHeader {
             "number of bytes of record block info: {}",
             record_block_info_size
         );
-        log::info!("number of bytes of record block: {}", record_block_size);
+        log::info!(
+            "size of record block: {} kilobytes",
+            record_block_size / 1024
+        );
 
         // info section
         let mut buf = vec![0; record_block_info_size as usize];
@@ -63,10 +74,9 @@ impl MDictHeader {
             }
         }
 
-        // actual record block data
-        let mut record_list = Words::new();
         let mut i: usize = 0;
         let mut offset: usize = 0;
+        let mut datas = Datas::new();
 
         for (compressed_size, decompressed_size) in record_block_info_list {
             let record_block_type = f.read_u32::<LittleEndian>()?;
@@ -86,7 +96,8 @@ impl MDictHeader {
                     let mut record_block_compressed = vec![0; compressed_size - 8];
                     f.read_exact(&mut record_block_compressed)?;
                     let mut d = ZlibDecoder::new(Cursor::new(record_block_compressed));
-                    let mut record_block = Vec::new();
+                    let mut record_block = Vec::with_capacity(decompressed_size);
+                    // let mut record_block = Vec::new();
                     d.read_to_end(&mut record_block)?;
                     record_block
                 }
@@ -95,10 +106,9 @@ impl MDictHeader {
                     todo!()
                 }
             };
-
+            assert_eq!(decompressed_size, record_block.len());
             assert_adler32_checksum(&record_block, adler32_checksum);
 
-            // TODO this part seems really inefficient
             while i < key_list.len() {
                 let (record_start, key_text) = &key_list[i];
                 let record_start = *record_start as usize;
@@ -116,16 +126,10 @@ impl MDictHeader {
 
                 let record_text_bytes = &record_block[record_start - offset..record_end - offset];
 
-                // TODO should decode first, as record_text is encoded in self.encoding
-                let record_text = std::str::from_utf8(&record_text_bytes).unwrap();
-                log::debug!("key_text: {}, record_text: {}", key_text, record_text);
-
-                record_list.push(Word::new(key_text.to_string(), record_text.to_string()));
+                datas.insert(key_text.to_string(), data_processor(record_text_bytes));
             }
-
             offset = offset + record_block.len();
         }
-
-        Ok(record_list)
+        Ok(datas)
     }
 }

@@ -396,7 +396,7 @@ dependencies = [
 
 [[package]]
 name = "dw"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "ansi_term",
  "chrono",
@@ -920,6 +920,7 @@ dependencies = [
  "env_logger",
  "flate2",
  "log",
+ "patricia_tree",
  "regex",
  "ripemd128",
  "salsa20",
@@ -1127,6 +1128,15 @@ dependencies = [
  "redox_syscall",
  "smallvec",
  "winapi",
+]
+
+[[package]]
+name = "patricia_tree"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "826436b01a8f26e5b2247682146e490f15fbdd5fc34b37388dd329da298ca8bd"
+dependencies = [
+ "bitflags",
 ]
 
 [[package]]

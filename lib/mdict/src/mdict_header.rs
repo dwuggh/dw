@@ -14,7 +14,7 @@ use crate::utils::*;
 ///   style_end    # or ''
 /// store stylesheet in dict in the form of
 /// {'number' : ('style_begin', 'style_end')}
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub(crate) enum StyleSheet {
     Number(u32),
     Begin,
@@ -23,7 +23,7 @@ pub(crate) enum StyleSheet {
 }
 
 /// mdict's metainfo, extracted from header
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct MDictHeader {
     /// mdict version, breaking changes occured in 2.0
     pub version: f32,
@@ -102,8 +102,13 @@ impl MDictHeader {
 
         if self.version >= 2.0 {
             // TODO encryption
-            let _zlib_mark = key_block_info_reader.read_u32::<LittleEndian>()?;
-            log::debug!("zlib mark should be 0x02: {:#x}", _zlib_mark);
+            let zlib_mark = key_block_info_reader.read_u32::<LittleEndian>()?;
+            if zlib_mark != 2 {
+                log::warn!(
+                    "zlib mark should be 0x02, but actually it is {:#x}",
+                    zlib_mark
+                );
+            }
             let checksum = key_block_info_reader.read_u32::<BigEndian>()?;
             let mut d = ZlibDecoder::new(key_block_info_reader);
             let _size = d.read_to_end(&mut key_block_info)?;
@@ -133,20 +138,18 @@ impl MDictHeader {
 
                     let text_term = if self.version >= 2.0 { 1 } else { 0 };
 
-                    let tex_head_term_size = if self.encoding == "UTF-16" {
+                    let text_head_term_size = if self.encoding == "UTF-16" {
                         2 * (text_head_size + text_term)
                     } else {
                         text_head_size + text_term
                     };
 
-                    log::info!("tex_head_term_size: {}", tex_head_term_size);
+                    // TODO don't know what this buffer is
+                    let mut text_head_term = vec![0; text_head_term_size as usize];
+                    f.read_exact(&mut text_head_term)?;
 
-                    // don't know what this buffer is
-                    let mut _buf = vec![0; tex_head_term_size as usize];
-                    f.read_exact(&mut _buf)?;
-
-                    let _str = std::str::from_utf8(&_buf).unwrap();
-                    log::info!("{}", _str);
+                    let text_head_term = std::str::from_utf8(&text_head_term).unwrap();
+                    log::info!("text head term: {}", text_head_term);
 
                     let text_tail_size = if self.version >= 2.0 {
                         f.read_u16::<BigEndian>()?
@@ -154,21 +157,24 @@ impl MDictHeader {
                         f.read_u8()? as u16
                     };
 
-                    let tex_tail_term_size = if self.encoding == "UTF-16" {
+                    let text_tail_term_size = if self.encoding == "UTF-16" {
                         2 * (text_tail_size + text_term)
                     } else {
                         text_tail_size + text_term
                     };
 
-                    let mut _buf = vec![0; tex_tail_term_size as usize];
-                    f.read_exact(&mut _buf)?;
-                    log::info!("tex_tail_term_size: {}", tex_tail_term_size);
-
-                    let _str = std::str::from_utf8(&_buf).unwrap();
-                    log::info!("{}", _str);
+                    let mut text_tail_term = vec![0; text_tail_term_size as usize];
+                    f.read_exact(&mut text_tail_term)?;
+                    let text_tail_term = std::str::from_utf8(&text_tail_term).unwrap();
+                    log::info!("text tail term: {}", text_tail_term);
 
                     let key_block_compressed_size = self.read_number(f)? as usize;
                     let key_block_decompressed_size = self.read_number(f)? as usize;
+                    log::info!(
+                        "key block size(compressed . decompressed): {} {}",
+                        key_block_compressed_size,
+                        key_block_decompressed_size
+                    );
 
                     key_block_info_list
                         .push((key_block_compressed_size, key_block_decompressed_size));
@@ -262,6 +268,7 @@ impl MDictHeader {
                     }
                     // transfrom key_text_bytes to utf-8 string
                     // TODO should decode first, as key_text is encoded in self.encoding
+                    // log::debug!("{}", self.encoding);
                     let key_text = std::str::from_utf8(&key_text_bytes).unwrap();
                     key_list.push((key_id, key_text.to_string()))
                 }
@@ -290,7 +297,10 @@ impl MDictHeader {
 }
 
 impl MDictHeader {
-    pub fn parse_header<R: Read>(f: &mut R) -> std::io::Result<MDictHeader> {
+    pub fn parse_header<R: Read>(
+        f: &mut R,
+        default_encoding: &str,
+    ) -> std::io::Result<MDictHeader> {
         // let mut header_bytes_size = Cursor::new([0; 4]);
         let header_bytes_size = f.read_u32::<BigEndian>().unwrap() as usize;
         log::info!("header_byte_size: {}", header_bytes_size);
@@ -317,8 +327,18 @@ impl MDictHeader {
             .unwrap()
             .parse::<f32>()
             .unwrap();
+        log::info!("mdict file version: {}", version);
 
-        let encoding: String = attributes.get("Encoding").unwrap().to_string();
+        let encoding: String = {
+            let encoding = attributes.get("Encoding").unwrap();
+            if encoding == "" {
+                default_encoding
+            } else {
+                encoding
+            }
+        }
+        .to_string();
+        log::info!("mdict file encoding: {}", encoding);
 
         let encrypt: u32 = match attributes.get("Encrypted") {
             Some(e) => {
@@ -334,17 +354,23 @@ impl MDictHeader {
         };
 
         // TODO use serde
-        let stylesheet_raw = attributes.get("StyleSheet").unwrap();
-        let stylesheet = if stylesheet_raw == "" {
-            StyleSheet::Begin
-        } else if let Ok(n) = stylesheet_raw.parse::<u32>() {
-            StyleSheet::Number(n)
-        } else {
-            let map = HashMap::new();
-            for _line in stylesheet_raw.lines() {
-                todo!()
+        let stylesheet = {
+            if let Some(stylesheet_raw) = attributes.get("StyleSheet") {
+                if stylesheet_raw == "" {
+                    StyleSheet::Begin
+                } else if let Ok(n) = stylesheet_raw.parse::<u32>() {
+                    StyleSheet::Number(n)
+                } else {
+                    let map = HashMap::new();
+                    for _line in stylesheet_raw.lines() {
+                        todo!()
+                    }
+                    StyleSheet::Dict(map)
+                }
+            } else {
+                // TODO
+                StyleSheet::Begin
             }
-            StyleSheet::Dict(map)
         };
 
         let number_width: u32 = if version < 2.0 { 4 } else { 8 };

@@ -4,7 +4,7 @@ pub fn assert_adler32_checksum(buffer: &[u8], checksum: u32) {
     let mut rolling_adler32 = adler32::RollingAdler32::new();
     rolling_adler32.update_buffer(buffer);
     let adler32_checksum1 = rolling_adler32.hash();
-    log::debug!(
+    log::trace!(
         "adler32_checksum: {:#x}, {:#x}",
         adler32_checksum1,
         checksum

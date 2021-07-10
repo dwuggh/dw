@@ -6,7 +6,7 @@ pub use web::*;
 mod tests {
     use std::sync::Arc;
 
-    use crate::server::{Backend, Query};
+    use crate::server::Query;
 
     use super::google_translate::GTrans;
 
