@@ -73,4 +73,13 @@ impl MDict {
 
         return Ok(mdd);
     }
+
+
+    pub fn lookup(&self, word: &str) -> Option<&String> {
+        self.words.get(word)
+    }
+
+    pub fn lookup_assets(&self, word: &str) -> Option<&Vec<u8>> {
+        self.mdd_asset.as_ref()?.assets.get(word)
+    }
 }
