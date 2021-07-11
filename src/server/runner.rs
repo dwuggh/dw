@@ -1,4 +1,3 @@
-
 use std::sync::Arc;
 
 use super::backends::google_translate::GTrans;
@@ -19,22 +18,29 @@ impl Runner {
         Runner { backends }
     }
 
-    pub async fn run(&self, query: Arc<Query>, formatter: Formatter) {
+    pub async fn run(&self, query: Arc<Query>, formatter: Formatter) -> String {
+        let mut results = Vec::new();
         for backend in &self.backends {
             let backend = Arc::clone(backend);
             let q = Arc::clone(&query);
             log::debug!("running backend {:?}", backend);
-            tokio::task::spawn(async move {
+            let handle = tokio::task::spawn(async move {
                 match backend.query(q).await {
-                    Ok(res) => {
-                        println!("{}", formatter.format(&res))
-                    }
+                    Ok(res) => formatter.format(&res),
                     Err(e) => {
                         log::error!("query error: {}", e);
-                        eprintln!("{}", e)
+                        eprintln!("{}", e);
+                        // TODO
+                        "error".to_string()
                     }
                 }
-            }).await.unwrap();
+            })
+            .await;
+            match handle {
+                Ok(res) => results.push(res),
+                Err(e) => log::error!("tokio task error: {}", e),
+            }
         }
+        results.join("\n\n").to_string()
     }
 }

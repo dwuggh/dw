@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 use super::new_client;
 
-#[derive(Deserialize, Debug, Default, Clone)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct YoudaoAPIKey {
     pub secret_key: String,
     pub id: String,

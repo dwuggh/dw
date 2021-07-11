@@ -26,7 +26,7 @@ impl GTrans {
 
 impl GTrans {
     pub async fn query(&self, query: Arc<Query>) -> Result<RespData, String> {
-        log::info!("requesting youdao translate");
+        log::info!("requesting google translate");
         let client = new_client();
         let params = [
             ("q", &query.text),

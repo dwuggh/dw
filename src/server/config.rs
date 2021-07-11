@@ -26,6 +26,9 @@ pub struct Config {
     pub proxy: Proxy,
 
     #[serde(default)]
+    pub server: Option<Server>,
+
+    #[serde(default)]
     pub youdao: Option<YoudaoAPIKey>,
 }
 
@@ -35,6 +38,11 @@ pub struct Proxy {
     pub http_proxy: Option<String>,
     // #[serde(default = "String::new")]
     pub https_proxy: Option<String>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Server {
+    pub addr: String,
 }
 
 pub fn read_config_from_file(
@@ -94,5 +102,18 @@ id = \"shit\"
         .unwrap();
         let youdao = config.youdao.unwrap();
         assert_eq!(youdao.id, "shit");
+    }
+
+    #[test]
+    fn it_can_parse_server_address() {
+        let config: Config = toml::from_str(
+            "
+[server]
+addr = \"127.0.0.1:1080\"
+",
+        )
+        .unwrap();
+        let addr = config.server.unwrap().addr;
+        assert_eq!(addr, "127.0.0.1:1080");
     }
 }

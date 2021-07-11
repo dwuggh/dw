@@ -5,8 +5,9 @@ pub use ansiterm::format_ansi_term;
 pub use md::format_markdown;
 
 use super::RespData;
+use serde::{Serialize, Deserialize};
 
-#[derive(PartialEq, Eq, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, Clone, Copy, Debug, Deserialize, Serialize)]
 pub enum Formatter {
     AnsiTerm,
     Markdown

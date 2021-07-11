@@ -8,6 +8,8 @@ use server::{History, Query};
 use std::fs::File;
 use std::{io::prelude::*, sync::Arc};
 
+use crate::server::{Params, init_server};
+
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
@@ -15,6 +17,12 @@ async fn main() -> std::io::Result<()> {
         .version("0.2.0")
         .author("dwuggh <dwuggh@gmail.com>")
         .about("A simple dictionary wrapper.")
+        .arg(
+            Arg::new("server")
+                .about("server mode")
+                .long("server")
+                .takes_value(false),
+        )
         .arg(Arg::new("INPUT").about("input").required(false).index(1))
         .arg(
             Arg::new("file")
@@ -42,8 +50,13 @@ async fn main() -> std::io::Result<()> {
     // load config
     // TODO better error handling
     server::config::init().unwrap();
-    let runner = server::runner::Runner::new();
-    let mut history = History::new();
+
+    // server
+    if matches.is_present("server") {
+        let addr = server::config::get().server.clone().unwrap().addr;
+        log::info!("initializing server on {}", addr);
+        return init_server(&addr).await;
+    }
 
     let mut text = String::new();
     if let Some(file) = matches.value_of("file") {
@@ -76,12 +89,32 @@ async fn main() -> std::io::Result<()> {
             }
         }
     };
+    let query = Query::new(&text, lang_from, lang_to, false);
+    let addr = server::config::get().server.clone().unwrap().addr;
 
-    let query = Arc::new(Query::new(&text, lang_from, lang_to, false));
-    if query.is_short_text {
-        history.add(&query.text, &query.lang_from);
+    if std::net::TcpListener::bind(&addr).is_err() {
+        log::info!("using server to get response");
+        let client = reqwest::Client::new();
+        let params = Params::new(query, Formatter::AnsiTerm);
+        let res = client
+            .post(format!("http://{}/lookup", addr))
+            .json(&params)
+            .send()
+            .await
+            .unwrap();
+        let res = res.json::<String>().await.unwrap();
+        println!("{}", res);
+    } else {
+        let runner = server::runner::Runner::new();
+        let mut history = History::new();
+
+        if query.is_short_text {
+            history.add(&query.text, &query.lang_from);
+        }
+        let result = runner.run(Arc::new(query), Formatter::AnsiTerm).await;
+        println!("{}", result);
+        history.dump()?;
     }
-    runner.run(query, Formatter::AnsiTerm).await;
-    history.dump()?;
+
     Ok(())
 }

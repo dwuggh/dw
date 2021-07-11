@@ -1,4 +1,5 @@
 use super::backends::{google_translate::GTrans, youdao::Youdao};
+use serde::{Deserialize, Serialize};
 
 /// TODO audio type
 #[derive(Debug)]
@@ -19,7 +20,7 @@ pub struct RespData {
 }
 
 /// query for text
-#[derive(Debug)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Query {
     /// the query text
     pub text: String,
