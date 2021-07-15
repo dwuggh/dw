@@ -39,8 +39,13 @@ async fn lookup_handler(params: Params) -> Result<impl warp::Reply, std::convert
     }
     log::info!("incoming query: {:?}", query);
     let format = params.format;
-    let res = RUNNER.get().unwrap().run(query, format).await;
-    Ok(warp::reply::json(&res))
+    let mut rx = RUNNER.get().unwrap().run(query, format).await;
+    let mut resp = String::new();
+    while let Some(text) = rx.recv().await {
+        resp.push_str("\n\n");
+        resp.push_str(&text);
+    }
+    Ok(warp::reply::json(&resp))
 }
 
 pub async fn init_server(addr: &str) -> tokio::io::Result<()> {
@@ -59,7 +64,9 @@ pub async fn init_server(addr: &str) -> tokio::io::Result<()> {
         .and(warp::body::json())
         .and_then(lookup_handler);
 
-    warp::serve(lookup)
+    let hello = warp::path("hello").map(|| warp::reply::json(&"dw".to_string()));
+
+    warp::serve(lookup.or(hello))
         .run(addr.parse::<std::net::SocketAddr>().unwrap())
         .await;
 

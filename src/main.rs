@@ -8,7 +8,7 @@ use server::{History, Query};
 use std::fs::File;
 use std::{io::prelude::*, sync::Arc};
 
-use crate::server::{Params, init_server};
+use crate::server::{init_server, Params};
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
@@ -21,6 +21,12 @@ async fn main() -> std::io::Result<()> {
             Arg::new("server")
                 .about("server mode")
                 .long("server")
+                .takes_value(false),
+        )
+        .arg(
+            Arg::new("standalone")
+                .about("standalone client mode")
+                .long("standalone")
                 .takes_value(false),
         )
         .arg(Arg::new("INPUT").about("input").required(false).index(1))
@@ -92,7 +98,15 @@ async fn main() -> std::io::Result<()> {
     let query = Query::new(&text, lang_from, lang_to, false);
     let addr = server::config::get().server.clone().unwrap().addr;
 
-    if std::net::TcpListener::bind(&addr).is_err() {
+    let server_is_ready = reqwest::Client::new()
+        .get(&addr)
+        .send()
+        .await
+        .ok()
+        .and_then(|a| a.status().is_success().then(|| 0))
+        .is_some();
+
+    if !matches.is_present("standalone") && server_is_ready {
         log::info!("using server to get response");
         let client = reqwest::Client::new();
         let params = Params::new(query, Formatter::AnsiTerm);
@@ -111,8 +125,11 @@ async fn main() -> std::io::Result<()> {
         if query.is_short_text {
             history.add(&query.text, &query.lang_from);
         }
-        let result = runner.run(Arc::new(query), Formatter::AnsiTerm).await;
-        println!("{}", result);
+        let mut rx = runner.run(Arc::new(query), Formatter::AnsiTerm).await;
+
+        while let Some(text) = rx.recv().await {
+            println!("\n\n{}", text);
+        }
         history.dump()?;
     }
 
