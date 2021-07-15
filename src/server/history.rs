@@ -1,7 +1,7 @@
 use chrono::prelude::*;
+use std::fs::File;
 use std::io::prelude::*;
 use std::path::PathBuf;
-use std::fs::File;
 use xdg::BaseDirectories;
 
 pub struct History {

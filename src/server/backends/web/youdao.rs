@@ -1,5 +1,5 @@
-use crate::server::{Query, RespData};
 use crate::server::config;
+use crate::server::{Query, RespData};
 use serde::Deserialize;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -89,7 +89,12 @@ impl Youdao {
                     ("strict", &"false".into()),
                 ];
 
-                let resp = client.post(&self.url_free).form(&params).send().await.unwrap();
+                let resp = client
+                    .post(&self.url_free)
+                    .form(&params)
+                    .send()
+                    .await
+                    .unwrap();
                 let resp_data: Value = resp.json().await.unwrap();
                 log::debug!("raw data from youdao translate: {:?}", resp_data);
                 let error_code = resp_data.get("errorCode").unwrap().as_str().unwrap();

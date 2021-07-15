@@ -2,7 +2,6 @@ use serde::Deserialize;
 use std::fs::File;
 use std::io::prelude::*;
 
-
 use crate::server::backends::youdao::YoudaoAPIKey;
 extern crate xdg;
 
@@ -17,7 +16,6 @@ pub fn init() -> Result<(), Config> {
 pub fn get() -> &'static Config {
     CONFIG.get().unwrap()
 }
-
 
 #[derive(Deserialize, Debug, Default, Clone)]
 pub struct Config {

@@ -1,8 +1,8 @@
+mod collection;
 pub mod mdict;
 pub mod mdict_header;
-mod utils;
-mod collection;
 mod record_block;
+mod utils;
 
 #[cfg(test)]
 mod tests {

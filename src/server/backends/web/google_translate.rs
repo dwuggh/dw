@@ -19,7 +19,8 @@ impl GTrans {
         GTrans {
             url_free: "https://translate.google.cn/translate_a/single?client=gtx&dt=t".to_owned(),
             _url_voice: "https: //translate.google.cn/translate_tts?ie=UTF-8&client=t&prev
-=input&q={}&tl=en&total=1&idx=0&textlen=4&tk={}".to_owned(),
+=input&q={}&tl=en&total=1&idx=0&textlen=4&tk={}"
+                .to_owned(),
         }
     }
 }
@@ -36,7 +37,12 @@ impl GTrans {
             ("oe", &"UTF-8".into()),
         ];
 
-        let resp = client.post(&self.url_free).form(&params).send().await.unwrap();
+        let resp = client
+            .post(&self.url_free)
+            .form(&params)
+            .send()
+            .await
+            .unwrap();
         log::debug!("status: {}", resp.status());
         let resp_data: serde_json::Value = resp.json().await.unwrap();
         log::debug!("raw data from google translate: {:?}", resp_data);

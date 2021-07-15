@@ -63,7 +63,6 @@ impl MDict {
             None
         };
 
-
         let mdd = MDict {
             mdx_file_path: mdx_file_path.to_string(),
             header,
@@ -73,7 +72,6 @@ impl MDict {
 
         return Ok(mdd);
     }
-
 
     pub fn lookup(&self, word: &str) -> Option<&String> {
         self.words.get(word)

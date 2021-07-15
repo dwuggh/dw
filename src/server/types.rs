@@ -55,19 +55,14 @@ impl Query {
 #[derive(Clone, Debug)]
 pub enum Backend {
     Youdao(Youdao),
-    GTrans(GTrans)
+    GTrans(GTrans),
 }
 
 impl Backend {
     pub async fn query(&self, query: std::sync::Arc<Query>) -> Result<RespData, String> {
         match self {
-            Backend::Youdao(youdao) => {
-                youdao.query(query).await
-            }
-            Backend::GTrans(gtrans) => {
-                gtrans.query(query).await
-            }
+            Backend::Youdao(youdao) => youdao.query(query).await,
+            Backend::GTrans(gtrans) => gtrans.query(query).await,
         }
     }
-    
 }

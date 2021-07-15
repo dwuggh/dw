@@ -12,7 +12,6 @@ use crate::utils::assert_adler32_checksum;
 
 type RecordBlockInfoList = Vec<(usize, usize)>;
 
-
 impl MDictHeader {
     pub fn mdd_decode_record_block(
         &self,
