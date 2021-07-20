@@ -2,6 +2,26 @@ mod web;
 
 pub use web::*;
 
+use super::{Query, RespData};
+
+/// Backend for searching words. Can be dictserver, mdd/mdx, or online searching.
+#[derive(Clone, Debug)]
+pub enum Backend {
+    Youdao(youdao::Youdao),
+    GTrans(google_translate::GTrans),
+    MDict(mdict::MDictBackend),
+}
+
+impl Backend {
+    pub async fn query(&self, query: std::sync::Arc<Query>) -> Result<RespData, String> {
+        match self {
+            Backend::Youdao(youdao) => youdao.query(query).await,
+            Backend::GTrans(gtrans) => gtrans.query(query).await,
+            Backend::MDict(mdict) => mdict.query(query).await,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::sync::Arc;

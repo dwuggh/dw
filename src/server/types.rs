@@ -1,4 +1,3 @@
-use super::backends::{google_translate::GTrans, youdao::Youdao};
 use serde::{Deserialize, Serialize};
 
 /// TODO audio type
@@ -48,21 +47,5 @@ impl Query {
 
     fn is_short_text(text: &str) -> bool {
         text.len() < 20
-    }
-}
-
-/// Backend for searching words. Can be dictserver, mdd/mdx, or online searching.
-#[derive(Clone, Debug)]
-pub enum Backend {
-    Youdao(Youdao),
-    GTrans(GTrans),
-}
-
-impl Backend {
-    pub async fn query(&self, query: std::sync::Arc<Query>) -> Result<RespData, String> {
-        match self {
-            Backend::Youdao(youdao) => youdao.query(query).await,
-            Backend::GTrans(gtrans) => gtrans.query(query).await,
-        }
     }
 }
