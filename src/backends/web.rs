@@ -1,4 +1,4 @@
-use crate::server::config;
+use crate::config;
 use reqwest;
 
 pub mod google_translate;

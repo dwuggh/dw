@@ -1,5 +1,7 @@
+mod mdict;
 mod web;
 
+pub use self::mdict::MDictBackend;
 pub use web::*;
 
 use super::{Query, RespData};
@@ -26,7 +28,7 @@ impl Backend {
 mod tests {
     use std::sync::Arc;
 
-    use crate::server::Query;
+    use crate::Query;
 
     use super::google_translate::GTrans;
 
@@ -41,7 +43,7 @@ mod tests {
 
     #[test]
     fn google_translate_can_translate_fuck() {
-        crate::server::config::init().unwrap();
+        crate::config::init().unwrap();
         let g = GTrans::new();
         let query = query_fuck();
         let rt = tokio::runtime::Builder::new_current_thread()

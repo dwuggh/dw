@@ -1,15 +1,7 @@
-pub mod backends;
-pub mod config;
-pub mod formatter;
-mod history;
-pub mod runner;
-pub mod transformer;
-pub mod types;
-
+use crate::history::History;
+use crate::runner;
+use crate::{formatter, Query};
 use std::sync::{Arc, Mutex};
-
-pub use history::History;
-pub use types::*;
 
 use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};

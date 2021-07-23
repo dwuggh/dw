@@ -5,7 +5,6 @@ use super::backends::google_translate::GTrans;
 use super::backends::youdao::Youdao;
 use super::backends::Backend;
 use super::formatter::Formatter;
-use super::Query;
 
 pub struct Runner {
     backends: Vec<Arc<Backend>>,
@@ -16,11 +15,20 @@ impl Runner {
         let mut backends = Vec::new();
         backends.push(Arc::new(Backend::GTrans(GTrans::new())));
         backends.push(Arc::new(Backend::Youdao(Youdao::new())));
+        let mdd_path = "/home/dwuggh/.dicts/OALDcn8/oald.mdd";
+        let mdx_path = "/home/dwuggh/.dicts/OALDcn8/oald.mdx";
+        // backends.push(Arc::new(Backend::MDict(MDictBackend::new(
+        //     mdx_path, mdd_path,
+        // ))));
 
         Runner { backends }
     }
 
-    pub async fn run(&self, query: Arc<Query>, formatter: Formatter) -> mpsc::Receiver<String> {
+    pub async fn run(
+        &self,
+        query: Arc<crate::Query>,
+        formatter: Formatter,
+    ) -> mpsc::Receiver<String> {
         // let mut results: Vec<String> = Vec::new();
         let (tx, rx) = mpsc::channel(32);
         let handles: Vec<_> = self

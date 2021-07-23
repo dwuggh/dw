@@ -1,8 +1,7 @@
-use crate::server::RespData;
 use ansi_term::{Colour, Style};
 
 /// format the string to ansi_term
-pub fn format_ansi_term(data: &RespData) -> String {
+pub fn format_ansi_term(data: &crate::types::RespData) -> String {
     let mut strings: Vec<String> = Vec::new();
     strings.push(Colour::Red.paint(&data.backend).to_string());
     strings.push(Style::new().bold().paint(&data.query.text).to_string());

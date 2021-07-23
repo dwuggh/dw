@@ -1,14 +1,22 @@
-mod server;
+mod backends;
+mod config;
+mod formatter;
+mod history;
+pub mod runner;
+mod transformer;
+pub mod types;
+pub use types::*;
+pub mod server;
 
 use clap::{App, Arg};
-use server::formatter::Formatter;
-use server::transformer::identify_language;
-use server::transformer::{Concat, Transformer};
-use server::{History, Query};
+use formatter::Formatter;
+use history::History;
 use std::fs::File;
 use std::{io::prelude::*, sync::Arc};
+use transformer::identify_language;
+use transformer::{Concat, Transformer};
 
-use crate::server::{init_server, Params};
+use server::{init_server, Params};
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
@@ -55,11 +63,11 @@ async fn main() -> std::io::Result<()> {
 
     // load config
     // TODO better error handling
-    server::config::init().unwrap();
+    config::init().unwrap();
 
     // server
     if matches.is_present("server") {
-        let addr = server::config::get().server.clone().unwrap().addr;
+        let addr = config::get().server.clone().unwrap().addr;
         log::info!("initializing server on {}", addr);
         return init_server(&addr).await;
     }
@@ -96,7 +104,7 @@ async fn main() -> std::io::Result<()> {
         }
     };
     let query = Query::new(&text, lang_from, lang_to, false);
-    let addr = server::config::get().server.clone().unwrap().addr;
+    let addr = config::get().server.clone().unwrap().addr;
 
     let server_is_ready = reqwest::Client::new()
         .get(&addr)
@@ -119,7 +127,7 @@ async fn main() -> std::io::Result<()> {
         let res = res.json::<String>().await.unwrap();
         println!("{}", res);
     } else {
-        let runner = server::runner::Runner::new();
+        let runner = runner::Runner::new();
         let mut history = History::new();
 
         if query.is_short_text {

@@ -2,7 +2,7 @@ use serde::Deserialize;
 use std::fs::File;
 use std::io::prelude::*;
 
-use crate::server::backends::youdao::YoudaoAPIKey;
+use crate::backends::youdao::YoudaoAPIKey;
 extern crate xdg;
 
 use once_cell::sync::OnceCell;

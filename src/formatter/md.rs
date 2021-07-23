@@ -1,4 +1,4 @@
-use crate::server::RespData;
+use crate::RespData;
 
 pub fn format_markdown(resp: &RespData) -> String {
     let mut result = String::new();
