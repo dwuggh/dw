@@ -4,13 +4,16 @@ use std::io::prelude::*;
 use std::path::PathBuf;
 use xdg::BaseDirectories;
 
+use crate::is_short_text;
+use serde::{Deserialize, Serialize};
+
 pub struct History {
     file: PathBuf,
     items: Vec<HistoryItem>,
 }
 
-#[derive(Clone, Debug)]
-struct HistoryItem {
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct HistoryItem {
     time: DateTime<Utc>,
     text: String,
     lang: String,
@@ -64,6 +67,16 @@ impl History {
 
     pub fn add(&mut self, text: &str, lang: &str) {
         self.items.push(HistoryItem::new(text, lang));
+    }
+
+    pub fn last_word(&self) -> Option<HistoryItem> {
+        while let mut i = self.items.len() {
+            i -= 1;
+            if is_short_text(&self.items[i].lang) {
+                return Some(self.items[i].clone());
+            }
+        }
+        None
     }
 
     pub fn dump(&self) -> std::io::Result<()> {

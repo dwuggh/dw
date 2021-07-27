@@ -15,7 +15,7 @@ pub enum Backend {
 }
 
 impl Backend {
-    pub async fn query(&self, query: std::sync::Arc<Query>) -> Result<RespData, String> {
+    pub async fn query(&self, query: Query) -> Result<RespData, String> {
         match self {
             Backend::Youdao(youdao) => youdao.query(query).await,
             Backend::GTrans(gtrans) => gtrans.query(query).await,
@@ -26,18 +26,16 @@ impl Backend {
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
-
     use crate::Query;
 
     use super::google_translate::GTrans;
 
-    fn query_en(text: &str) -> Arc<Query> {
+    fn query_en(text: &str) -> Query {
         let query = Query::new(text, "en", "zh", false);
-        Arc::new(query)
+        query
     }
 
-    fn query_fuck() -> Arc<Query> {
+    fn query_fuck() -> Query {
         query_en("fuck")
     }
 
@@ -50,7 +48,7 @@ mod tests {
             .enable_all()
             .build()
             .unwrap();
-        let resp = rt.block_on(g.query(Arc::clone(&query))).unwrap();
+        let resp = rt.block_on(g.query(query)).unwrap();
         assert_eq!(resp.basic_desc, "他妈的")
     }
 }

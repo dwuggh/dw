@@ -8,7 +8,7 @@ pub struct Audio;
 pub struct RespData {
     /// backend identifier
     pub backend: String,
-    pub query: std::sync::Arc<Query>,
+    pub query: Query,
     /// basic description about words or sentences' translation.
     pub basic_desc: String,
     pub phonetic_symbol: Option<Vec<(String, String)>>,
@@ -35,7 +35,7 @@ pub struct Query {
 impl Query {
     pub fn new<S: Into<String>>(text: S, lang_from: &str, lang_to: &str, audio: bool) -> Query {
         let text: String = text.into();
-        let is_short_text = Query::is_short_text(&text);
+        let is_short_text = is_short_text(&text);
         Query {
             text,
             is_short_text,
@@ -44,8 +44,8 @@ impl Query {
             audio,
         }
     }
+}
 
-    fn is_short_text(text: &str) -> bool {
-        text.len() < 20
-    }
+pub fn is_short_text(text: &str) -> bool {
+    text.len() < 20
 }

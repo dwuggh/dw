@@ -1,6 +1,8 @@
 use std::sync::Arc;
 use tokio::sync::mpsc;
 
+use crate::Query;
+
 use super::backends::google_translate::GTrans;
 use super::backends::youdao::Youdao;
 use super::backends::Backend;
@@ -24,11 +26,7 @@ impl Runner {
         Runner { backends }
     }
 
-    pub async fn run(
-        &self,
-        query: Arc<crate::Query>,
-        formatter: Formatter,
-    ) -> mpsc::Receiver<String> {
+    pub async fn run(&self, query: Query, formatter: Formatter) -> mpsc::Receiver<String> {
         // let mut results: Vec<String> = Vec::new();
         let (tx, rx) = mpsc::channel(32);
         let handles: Vec<_> = self
@@ -36,7 +34,7 @@ impl Runner {
             .iter()
             .map(|backend| -> tokio::task::JoinHandle<()> {
                 let backend = Arc::clone(backend);
-                let q = Arc::clone(&query);
+                let q = query.clone();
                 let tx = tx.clone();
                 log::debug!("running backend {:?}", backend);
                 let handle = tokio::task::spawn(async move {

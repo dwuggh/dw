@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use mdict::mdict::MDict;
 
 use crate::{Query, RespData};
@@ -15,7 +13,7 @@ impl MDictBackend {
         MDictBackend { dict }
     }
 
-    pub async fn query(&self, query: Arc<Query>) -> Result<RespData, String> {
+    pub async fn query(&self, query: Query) -> Result<RespData, String> {
         let text = self
             .dict
             .lookup(&query.text)

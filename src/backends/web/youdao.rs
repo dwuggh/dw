@@ -3,7 +3,6 @@ use crate::{Query, RespData};
 use serde::Deserialize;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
-use std::sync::Arc;
 use uuid::Uuid;
 
 use super::new_client;
@@ -33,7 +32,7 @@ unsafe impl Send for Youdao {}
 unsafe impl Sync for Youdao {}
 
 impl Youdao {
-    pub async fn query(&self, query: Arc<Query>) -> Result<RespData, String> {
+    pub async fn query(&self, query: Query) -> Result<RespData, String> {
         log::info!("requesting youdao translate");
         match &self.api_key {
             Some(api_key) => {

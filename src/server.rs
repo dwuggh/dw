@@ -1,7 +1,7 @@
 use crate::history::History;
 use crate::runner;
 use crate::{formatter, Query};
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
@@ -23,7 +23,7 @@ impl Params {
 }
 
 async fn lookup_handler(params: Params) -> Result<impl warp::Reply, std::convert::Infallible> {
-    let query = Arc::new(params.query);
+    let query = params.query;
     if query.is_short_text {
         let mut h = HISTORY.get().unwrap().lock().unwrap();
         h.add(&query.text, &query.lang_from);
@@ -57,8 +57,10 @@ pub async fn init_server(addr: &str) -> tokio::io::Result<()> {
         .and_then(lookup_handler);
 
     let hello = warp::path("hello").map(|| warp::reply::json(&"dw".to_string()));
+    let last_word = warp::path("last_word")
+        .map(|| warp::reply::json(&HISTORY.get().unwrap().lock().unwrap().last_word().unwrap()));
 
-    warp::serve(lookup.or(hello))
+    warp::serve(lookup.or(hello).or(last_word))
         .run(addr.parse::<std::net::SocketAddr>().unwrap())
         .await;
 

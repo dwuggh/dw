@@ -1,5 +1,4 @@
 use crate::{Query, RespData};
-use std::sync::Arc;
 
 use super::new_client;
 
@@ -26,7 +25,7 @@ impl GTrans {
 }
 
 impl GTrans {
-    pub async fn query(&self, query: Arc<Query>) -> Result<RespData, String> {
+    pub async fn query(&self, query: Query) -> Result<RespData, String> {
         log::info!("requesting google translate");
         let client = new_client();
         let params = [

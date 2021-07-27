@@ -12,7 +12,7 @@ use clap::{App, Arg};
 use formatter::Formatter;
 use history::History;
 use std::fs::File;
-use std::{io::prelude::*, sync::Arc};
+use std::io::prelude::Read;
 use transformer::identify_language;
 use transformer::{Concat, Transformer};
 
@@ -133,7 +133,7 @@ async fn main() -> std::io::Result<()> {
         if query.is_short_text {
             history.add(&query.text, &query.lang_from);
         }
-        let mut rx = runner.run(Arc::new(query), Formatter::AnsiTerm).await;
+        let mut rx = runner.run(query, Formatter::AnsiTerm).await;
 
         while let Some(text) = rx.recv().await {
             println!("\n\n{}", text);
