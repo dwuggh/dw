@@ -6,7 +6,7 @@ use crate::Query;
 use super::backends::google_translate::GTrans;
 use super::backends::youdao::Youdao;
 use super::backends::Backend;
-use super::formatter::Formatter;
+use super::formatter::Format;
 
 pub struct Runner {
     backends: Vec<Arc<Backend>>,
@@ -26,7 +26,7 @@ impl Runner {
         Runner { backends }
     }
 
-    pub async fn run(&self, query: Query, formatter: Formatter) -> mpsc::Receiver<String> {
+    pub async fn run(&self, query: Query, format: Format) -> mpsc::Receiver<String> {
         // let mut results: Vec<String> = Vec::new();
         let (tx, rx) = mpsc::channel(32);
         let handles: Vec<_> = self
@@ -39,7 +39,7 @@ impl Runner {
                 log::debug!("running backend {:?}", backend);
                 let handle = tokio::task::spawn(async move {
                     let resp = match backend.query(q).await {
-                        Ok(res) => formatter.format(&res),
+                        Ok(res) => format.format(&res),
                         Err(e) => {
                             log::error!("query error: {}", e);
                             eprintln!("{}", e);

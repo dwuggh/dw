@@ -13,11 +13,11 @@ static HISTORY: OnceCell<Mutex<History>> = OnceCell::new();
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Params {
     query: Query,
-    format: formatter::Formatter,
+    format: formatter::Format,
 }
 
 impl Params {
-    pub fn new(query: Query, format: formatter::Formatter) -> Self {
+    pub fn new(query: Query, format: formatter::Format) -> Self {
         Self { query, format }
     }
 }

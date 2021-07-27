@@ -9,7 +9,7 @@ pub use types::*;
 pub mod server;
 
 use clap::{App, Arg};
-use formatter::Formatter;
+use formatter::Format;
 use history::History;
 use std::fs::File;
 use std::io::prelude::Read;
@@ -22,7 +22,7 @@ use server::{init_server, Params};
 async fn main() -> std::io::Result<()> {
     env_logger::init();
     let matches = App::new("dw")
-        .version("0.2.0")
+        .version("0.2.1")
         .author("dwuggh <dwuggh@gmail.com>")
         .about("A simple dictionary wrapper.")
         .arg(
@@ -56,6 +56,13 @@ async fn main() -> std::io::Result<()> {
                 .about("the language to be translated into")
                 .short('t')
                 .long("lang-target"),
+        )
+        .arg(
+            Arg::new("format")
+                .about("response format")
+                .long("format")
+                .possible_values(&["md", "ansi"])
+                .default_value("ansi"),
         )
         .get_matches();
 
@@ -104,8 +111,10 @@ async fn main() -> std::io::Result<()> {
         }
     };
     let query = Query::new(&text, lang_from, lang_to, false);
-    let addr = config::get().server.clone().unwrap().addr;
 
+    let format: Format = matches.value_of("format").unwrap().into();
+
+    let addr = config::get().server.clone().unwrap().addr;
     let server_is_ready = reqwest::Client::new()
         .get(&addr)
         .send()
@@ -117,7 +126,7 @@ async fn main() -> std::io::Result<()> {
     if !matches.is_present("standalone") && server_is_ready {
         log::info!("using server to get response");
         let client = reqwest::Client::new();
-        let params = Params::new(query, Formatter::AnsiTerm);
+        let params = Params::new(query, format);
         let res = client
             .post(format!("http://{}/lookup", addr))
             .json(&params)
@@ -133,7 +142,7 @@ async fn main() -> std::io::Result<()> {
         if query.is_short_text {
             history.add(&query.text, &query.lang_from);
         }
-        let mut rx = runner.run(query, Formatter::AnsiTerm).await;
+        let mut rx = runner.run(query, format).await;
 
         while let Some(text) = rx.recv().await {
             println!("\n\n{}", text);

@@ -6,17 +6,42 @@ pub use md::format_markdown;
 
 use serde::{Deserialize, Serialize};
 
+use crate::RespData;
+
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Deserialize, Serialize)]
-pub enum Formatter {
+pub enum Format {
     AnsiTerm,
     Markdown,
 }
 
-impl Formatter {
-    pub fn format(&self, resp: &crate::RespData) -> String {
+impl Format {
+    pub fn format(&self, resp: &RespData) -> String {
         match self {
-            Formatter::AnsiTerm => format_ansi_term(resp),
-            Formatter::Markdown => format_markdown(resp),
+            Format::AnsiTerm => format_ansi_term(resp),
+            Format::Markdown => format_markdown(resp),
         }
+    }
+}
+
+impl From<&str> for Format {
+    fn from(s: &str) -> Self {
+        match s {
+            "md" => Format::Markdown,
+            "ansi" => Format::AnsiTerm,
+            _ => unreachable!(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn can_read_str() {
+        let md = "md";
+        let ansi = "ansi";
+        assert_eq!(Format::Markdown, md.into());
+        assert_eq!(Format::AnsiTerm, ansi.into())
     }
 }
