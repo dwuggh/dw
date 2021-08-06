@@ -1,0 +1,46 @@
+#compdef dw
+
+autoload -U is-at-least
+
+_dw() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" \
+'--generate-shell-completion=[generate shell completion]: :(bash zsh powershell fish elvish)' \
+'-f+[use file]' \
+'--file=[use file]' \
+'-o+[origin language of the querying text]' \
+'--lang-origin=[origin language of the querying text]' \
+'-t+[the language to be translated into]' \
+'--lang-target=[the language to be translated into]' \
+'--format=[response format]: :(md ansi)' \
+'--server[server mode]' \
+'--standalone[standalone client mode]' \
+'--lang-code[display all available language codes]' \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
+'::INPUT -- input:' \
+&& ret=0
+    
+}
+
+(( $+functions[_dw_commands] )) ||
+_dw_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'dw commands' commands "$@"
+}
+
+_dw "$@"

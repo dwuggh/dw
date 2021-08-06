@@ -1,4 +1,5 @@
 mod backends;
+mod cli;
 mod config;
 mod formatter;
 mod history;
@@ -8,7 +9,7 @@ pub mod types;
 pub use types::*;
 pub mod server;
 
-use clap::{App, Arg};
+use cli::{build_cli, build_completion};
 use formatter::Format;
 use history::History;
 use std::fs::File;
@@ -21,65 +22,16 @@ use server::{init_server, Params};
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
-    let matches = App::new("dw")
-        .version("0.2.1")
-        .author("dwuggh <dwuggh@gmail.com>")
-        .about("A simple dictionary wrapper.")
-        .arg(
-            Arg::new("server")
-                .about("server mode")
-                .long("server")
-                .takes_value(false),
-        )
-        .arg(
-            Arg::new("standalone")
-                .about("standalone client mode")
-                .long("standalone")
-                .takes_value(false),
-        )
-        .arg(Arg::new("INPUT").about("input").required(false).index(1))
-        .arg(
-            Arg::new("file")
-                .about("use file")
-                .short('f')
-                .long("file")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::new("lang-origin")
-                .about("origin language of the querying text")
-                .short('o')
-                .long("lang-origin")
-                .takes_value(true)
-                ,
-        )
-        .arg(
-            Arg::new("lang-target")
-                .about("the language to be translated into")
-                .short('t')
-                .long("lang-target")
-                .takes_value(true)
-                ,
-        )
-        .arg(
-            Arg::new("lang-codes")
-                .about("display all available language codes")
-                .long("lang-code")
-                ,
-        )
-        .arg(
-            Arg::new("format")
-                .about("response format")
-                .long("format")
-                .possible_values(&["md", "ansi"])
-                .default_value("ansi"),
-        )
-        .get_matches();
+    let matches = build_cli().get_matches();
 
     log::debug!("get clap matches: {:?}", matches);
 
-
     // info section
+    if let Some(shell) = matches.value_of("generate-shell-completion") {
+        build_completion(shell);
+        return Ok(());
+    }
+
     if matches.is_present("lang-codes") {
         let lang_codes = include_str!("lang_code.md");
         println!("{}\n", lang_codes);
