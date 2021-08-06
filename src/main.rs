@@ -46,16 +46,26 @@ async fn main() -> std::io::Result<()> {
                 .takes_value(true),
         )
         .arg(
-            Arg::new("lang_origin")
+            Arg::new("lang-origin")
                 .about("origin language of the querying text")
                 .short('o')
-                .long("lang-origin"),
+                .long("lang-origin")
+                .takes_value(true)
+                ,
         )
         .arg(
-            Arg::new("lang_target")
+            Arg::new("lang-target")
                 .about("the language to be translated into")
                 .short('t')
-                .long("lang-target"),
+                .long("lang-target")
+                .takes_value(true)
+                ,
+        )
+        .arg(
+            Arg::new("lang-codes")
+                .about("display all available language codes")
+                .long("lang-code")
+                ,
         )
         .arg(
             Arg::new("format")
@@ -67,6 +77,14 @@ async fn main() -> std::io::Result<()> {
         .get_matches();
 
     log::debug!("get clap matches: {:?}", matches);
+
+
+    // info section
+    if matches.is_present("lang-codes") {
+        let lang_codes = include_str!("lang_code.md");
+        println!("{}\n", lang_codes);
+        return Ok(());
+    }
 
     // load config
     // TODO better error handling
@@ -96,11 +114,11 @@ async fn main() -> std::io::Result<()> {
     }
     text = Concat::default().act(&text);
     log::info!("query string: {}", text);
-    let lang_from = match matches.value_of("lang_origin") {
+    let lang_from = match matches.value_of("lang-origin") {
         Some(lang) => lang,
         None => identify_language(&text),
     };
-    let lang_to = match matches.value_of("lang_target") {
+    let lang_to = match matches.value_of("lang-target") {
         Some(lang) => lang,
         None => {
             if lang_from == "zh" {
