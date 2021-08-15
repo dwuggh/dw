@@ -84,19 +84,23 @@ async fn main() -> std::io::Result<()> {
 
     let format: Format = matches.value_of("format").unwrap().into();
 
-    let addr = config::get().server.clone().unwrap().addr;
-    let server_is_ready = reqwest::Client::new()
-        .get(&addr)
-        .send()
-        .await
-        .ok()
-        .and_then(|a| a.status().is_success().then(|| 0))
-        .is_some();
+    let server = config::get().server.clone();
+    let server_is_ready = match server {
+        Some(ref server) => reqwest::Client::new()
+            .get(&server.addr)
+            .send()
+            .await
+            .ok()
+            .and_then(|a| a.status().is_success().then(|| 0))
+            .is_some(),
+        None => false,
+    };
 
     if !matches.is_present("standalone") && server_is_ready {
         log::info!("using server to get response");
         let client = reqwest::Client::new();
         let params = Params::new(query, format);
+        let addr = server.unwrap().addr;
         let res = client
             .post(format!("http://{}/lookup", addr))
             .json(&params)
