@@ -30,7 +30,7 @@ pub fn build_cli() -> App<'static> {
             Arg::new("INPUT")
                 .about("input")
                 .required(false)
-                .multiple(true),
+                .multiple_values(true),
         )
         .arg(
             Arg::new("file")

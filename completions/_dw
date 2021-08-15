@@ -23,13 +23,13 @@ _dw() {
 '-t+[the language to be translated into]' \
 '--lang-target=[the language to be translated into]' \
 '--format=[response format]: :(md ansi)' \
+'-h[Print help information]' \
+'--help[Print help information]' \
+'-V[Print version information]' \
+'--version[Print version information]' \
 '--server[server mode]' \
 '--standalone[standalone client mode]' \
 '--lang-code[display all available language codes]' \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
 '*::INPUT -- input:' \
 && ret=0
     
@@ -37,9 +37,7 @@ _dw() {
 
 (( $+functions[_dw_commands] )) ||
 _dw_commands() {
-    local commands; commands=(
-        
-    )
+    local commands; commands=()
     _describe -t commands 'dw commands' commands "$@"
 }
 

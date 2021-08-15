@@ -28,13 +28,13 @@ Register-ArgumentCompleter -Native -CommandName 'dw' -ScriptBlock {
             [CompletionResult]::new('-t', 't', [CompletionResultType]::ParameterName, 'the language to be translated into')
             [CompletionResult]::new('--lang-target', 'lang-target', [CompletionResultType]::ParameterName, 'the language to be translated into')
             [CompletionResult]::new('--format', 'format', [CompletionResultType]::ParameterName, 'response format')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Print help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Print help information')
+            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Print version information')
+            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Print version information')
             [CompletionResult]::new('--server', 'server', [CompletionResultType]::ParameterName, 'server mode')
             [CompletionResult]::new('--standalone', 'standalone', [CompletionResultType]::ParameterName, 'standalone client mode')
             [CompletionResult]::new('--lang-code', 'lang-code', [CompletionResultType]::ParameterName, 'display all available language codes')
-            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
-            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
-            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Prints version information')
-            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Prints version information')
             break
         }
     })
