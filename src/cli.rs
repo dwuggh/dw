@@ -26,7 +26,12 @@ pub fn build_cli() -> App<'static> {
                 .long("standalone")
                 .takes_value(false),
         )
-        .arg(Arg::new("INPUT").about("input").required(false).index(1))
+        .arg(
+            Arg::new("INPUT")
+                .about("input")
+                .required(false)
+                .multiple(true),
+        )
         .arg(
             Arg::new("file")
                 .about("use file")

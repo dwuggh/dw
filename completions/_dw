@@ -30,7 +30,7 @@ _dw() {
 '--help[Prints help information]' \
 '-V[Prints version information]' \
 '--version[Prints version information]' \
-'::INPUT -- input:' \
+'*::INPUT -- input:' \
 && ret=0
     
 }

@@ -53,8 +53,9 @@ async fn main() -> std::io::Result<()> {
     if let Some(file) = matches.value_of("file") {
         let mut f = File::open(file)?;
         f.read_to_string(&mut text)?;
-    } else if let Some(_text) = matches.value_of("INPUT") {
-        text = _text.to_string();
+    } else if let Some(args) = matches.values_of("INPUT") {
+        let texts: Vec<&str> = args.collect();
+        text = texts.join(" ").to_string();
     } else {
         std::io::stdin().read_to_string(&mut text)?;
     }

@@ -20,7 +20,7 @@ _dw() {
 
     case "${cmd}" in
         dw)
-            opts=" -f -o -t -h -V  --generate-shell-completion --server --standalone --file --lang-origin --lang-target --lang-code --format --help --version  <INPUT> "
+            opts=" -f -o -t -h -V  --generate-shell-completion --server --standalone --file --lang-origin --lang-target --lang-code --format --help --version  <INPUT>... "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
