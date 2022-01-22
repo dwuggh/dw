@@ -9,10 +9,9 @@ _dw() {
     for i in ${COMP_WORDS[@]}
     do
         case "${i}" in
-            dw)
+            "$1")
                 cmd="dw"
                 ;;
-            
             *)
                 ;;
         esac
@@ -20,15 +19,14 @@ _dw() {
 
     case "${cmd}" in
         dw)
-            opts=" -h -V -f -o -t  --help --version --generate-shell-completion --server --standalone --file --lang-origin --lang-target --lang-code --format  <INPUT>... "
+            opts="-h -V -f -o -t --help --version --generate-shell-completion --server --standalone --file --lang-origin --lang-target --lang-code --format <INPUT>..."
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
-                
                 --generate-shell-completion)
-                    COMPREPLY=($(compgen -W "bash zsh powershell fish elvish" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "bash elvish fish powershell zsh" -- "${cur}"))
                     return 0
                     ;;
                 --file)
@@ -66,7 +64,6 @@ _dw() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        
     esac
 }
 

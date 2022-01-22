@@ -9,7 +9,7 @@ pub mod types;
 pub use types::*;
 pub mod server;
 
-use cli::{build_cli, build_completion};
+use cli::{build_cli, print_completions};
 use formatter::Format;
 use history::History;
 use std::fs::File;
@@ -27,8 +27,9 @@ async fn main() -> std::io::Result<()> {
     log::debug!("get clap matches: {:?}", matches);
 
     // info section
-    if let Some(shell) = matches.value_of("generate-shell-completion") {
-        build_completion(shell);
+    if let Ok(shell) = matches.value_of_t::<clap_complete::Shell>("generate-shell-completion") {
+        let mut app = build_cli();
+        print_completions(shell, &mut app);
         return Ok(());
     }
 
