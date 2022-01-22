@@ -16,7 +16,7 @@ pub struct GTrans {
 impl GTrans {
     pub fn new() -> GTrans {
         GTrans {
-            url_free: "https://translate.google.cn/translate_a/single?client=gtx&dt=t".to_owned(),
+            url_free: "https://translate.google.com/translate_a/single?".to_owned(),
             _url_voice: "https: //translate.google.cn/translate_tts?ie=UTF-8&client=t&prev
 =input&q={}&tl=en&total=1&idx=0&textlen=4&tk={}"
                 .to_owned(),
@@ -29,6 +29,8 @@ impl GTrans {
         log::info!("requesting google translate");
         let client = new_client();
         let params = [
+            ("client", &"gtx".into()),
+            ("dt", &"t".into()),
             ("q", &query.text),
             ("tl", &query.lang_to),
             ("sl", &"auto".into()),
