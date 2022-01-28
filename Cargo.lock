@@ -42,6 +42,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "anyhow"
+version = "1.0.53"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "94a45b455c14666b85fc40a019e8ab9eb75e3a124e05494f5397122bc9eb06e0"
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -424,6 +430,7 @@ name = "dw"
 version = "0.2.1"
 dependencies = [
  "ansi_term",
+ "anyhow",
  "chrono",
  "clap",
  "clap_complete",
@@ -438,6 +445,8 @@ dependencies = [
  "serde_json",
  "sha2",
  "tokio",
+ "tokio-stream",
+ "tokio-tungstenite 0.16.1",
  "toml",
  "uuid",
  "warp",
@@ -2212,7 +2221,19 @@ dependencies = [
  "log",
  "pin-project",
  "tokio",
- "tungstenite",
+ "tungstenite 0.14.0",
+]
+
+[[package]]
+name = "tokio-tungstenite"
+version = "0.16.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e80b39df6afcc12cdf752398ade96a6b9e99c903dfdc36e53ad10b9c366bca72"
+dependencies = [
+ "futures-util",
+ "log",
+ "tokio",
+ "tungstenite 0.16.0",
 ]
 
 [[package]]
@@ -2276,6 +2297,25 @@ name = "tungstenite"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a0b2d8558abd2e276b0a8df5c05a2ec762609344191e5fd23e292c910e9165b5"
+dependencies = [
+ "base64",
+ "byteorder",
+ "bytes",
+ "http",
+ "httparse",
+ "log",
+ "rand 0.8.4",
+ "sha-1 0.9.8",
+ "thiserror",
+ "url 2.2.2",
+ "utf-8",
+]
+
+[[package]]
+name = "tungstenite"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ad3713a14ae247f22a728a0456a545df14acf3867f905adff84be99e23b3ad1"
 dependencies = [
  "base64",
  "byteorder",
@@ -2493,7 +2533,7 @@ dependencies = [
  "serde_urlencoded",
  "tokio",
  "tokio-stream",
- "tokio-tungstenite",
+ "tokio-tungstenite 0.15.0",
  "tokio-util",
  "tower-service",
  "tracing",

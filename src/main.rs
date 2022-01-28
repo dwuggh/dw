@@ -1,5 +1,6 @@
 mod backends;
 mod cli;
+mod client;
 mod config;
 mod formatter;
 mod history;
@@ -89,7 +90,7 @@ async fn main() -> std::io::Result<()> {
     let server = config::get().server.clone();
     let server_is_ready = match server {
         Some(ref server) => reqwest::Client::new()
-            .get(&server.addr)
+            .get(format!("http://{}/hello", &server.addr))
             .send()
             .await
             .ok()
@@ -97,20 +98,23 @@ async fn main() -> std::io::Result<()> {
             .is_some(),
         None => false,
     };
+    dbg!(server_is_ready);
+    // let server_is_ready = true;
 
     if !matches.is_present("standalone") && server_is_ready {
         log::info!("using server to get response");
-        let client = reqwest::Client::new();
         let params = Params::new(query, format);
         let addr = server.unwrap().addr;
-        let res = client
-            .post(format!("http://{}/lookup", addr))
-            .json(&params)
-            .send()
-            .await
-            .unwrap();
-        let res = res.json::<String>().await.unwrap();
-        println!("{}", res);
+        // let client = reqwest::Client::new();
+        // let res = client
+        //     .post(format!("http://{}/lookup", addr))
+        //     .json(&params)
+        //     .send()
+        //     .await
+        //     .unwrap();
+        // let res = res.json::<String>().await.unwrap();
+        // println!("{}", res);
+        client::lookup_ws_single(&format!("ws://{}/ws", addr), &params).await.unwrap();
     } else {
         let runner = runner::Runner::new();
         let mut history = History::new();
@@ -121,8 +125,11 @@ async fn main() -> std::io::Result<()> {
         let mut rx = runner.run(query, format).await;
 
         while let Some(text) = rx.recv().await {
-            println!("\n\n{}", text);
+            if let Some(text) = text {
+                println!("\n\n{}", text);
+            }
         }
+        // dbg!(rx.recv().await);
         history.dump()?;
     }
 

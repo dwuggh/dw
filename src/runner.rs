@@ -26,43 +26,33 @@ impl Runner {
         Runner { backends }
     }
 
-    pub async fn run(&self, query: Query, format: Format) -> mpsc::Receiver<String> {
-        // let mut results: Vec<String> = Vec::new();
+    pub async fn run(&self, query: Query, format: Format) -> mpsc::Receiver<Option<String>> {
         let (tx, rx) = mpsc::channel(32);
-        let handles: Vec<_> = self
+        let _handles: Vec<()> =
+            self
             .backends
             .iter()
-            .map(|backend| -> tokio::task::JoinHandle<()> {
+            .map(|backend| {
                 let backend = Arc::clone(backend);
                 let q = query.clone();
                 let tx = tx.clone();
                 log::debug!("running backend {:?}", backend);
                 let handle = tokio::task::spawn(async move {
                     let resp = match backend.query(q).await {
-                        Ok(res) => format.format(&res),
+                        Ok(res) => Some(format.format(&res)),
                         Err(e) => {
                             log::error!("query error: {}", e);
-                            eprintln!("{}", e);
-                            // TODO
-                            "error".to_string()
+                            None
                         }
                     };
                     if let Err(e) = tx.send(resp).await {
                         log::error!("channel send error: {}", e);
                     }
                 });
-                handle
+                // handle
             })
             .collect();
-        futures::future::join_all(handles)
-            .await
-            .iter()
-            .for_each(|res| {
-                if let Err(e) = res {
-                    log::error!("tokio task error: {}", e)
-                }
-            });
-        // results.join("\n\n").to_string()
+        drop(_handles);
         rx
     }
 }
