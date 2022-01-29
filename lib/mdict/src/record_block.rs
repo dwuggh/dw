@@ -47,13 +47,13 @@ impl MDictHeader {
         let record_block_info_size = self.read_number(f)?;
         let record_block_size = self.read_number(f)?;
 
-        log::info!("number of record blocks: {}", num_record_blocks);
-        log::info!("number of entries: {}", _num_record_entries);
-        log::info!(
+        log::trace!("number of record blocks: {}", num_record_blocks);
+        log::trace!("number of entries: {}", _num_record_entries);
+        log::trace!(
             "number of bytes of record block info: {}",
             record_block_info_size
         );
-        log::info!(
+        log::trace!(
             "size of record block: {} kilobytes",
             record_block_size / 1024
         );

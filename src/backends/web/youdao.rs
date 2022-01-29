@@ -1,5 +1,6 @@
 use crate::config;
 use crate::{Query, RespData};
+use anyhow::anyhow;
 use serde::Deserialize;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -32,7 +33,7 @@ unsafe impl Send for Youdao {}
 unsafe impl Sync for Youdao {}
 
 impl Youdao {
-    pub async fn query(&self, query: Query) -> Result<RespData, String> {
+    pub async fn query(&self, query: Query) -> anyhow::Result<RespData> {
         log::info!("requesting youdao translate");
         match &self.api_key {
             Some(api_key) => {
@@ -94,11 +95,15 @@ impl Youdao {
                     .send()
                     .await
                     .unwrap();
-                let resp_data: Value = resp.json().await.unwrap();
+                let resp_data: Value = resp.json().await?;
                 log::debug!("raw data from youdao translate: {:?}", resp_data);
-                let error_code = resp_data.get("errorCode").unwrap().as_str().unwrap();
+                let error_code = resp_data
+                    .get("errorCode")
+                    .ok_or(anyhow!("no error code"))?
+                    .as_str()
+                    .unwrap();
                 if error_code != "0" {
-                    return Err(error_code.to_string());
+                    return Err(anyhow!(error_code.to_string()));
                 }
                 // get lang_from and lang_to
                 let langs: Vec<&str> = resp_data
@@ -174,7 +179,7 @@ impl Youdao {
                     audio: None,
                 })
             }
-            None => Err(String::from("no youdao API key")),
+            None => Err(anyhow!("no youdao API key")),
         }
     }
 }

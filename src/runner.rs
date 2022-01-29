@@ -17,8 +17,8 @@ impl Runner {
         let mut backends = Vec::new();
         backends.push(Arc::new(Backend::GTrans(GTrans::new())));
         backends.push(Arc::new(Backend::Youdao(Youdao::new())));
-        let mdd_path = "/home/dwuggh/.dicts/OALDcn8/oald.mdd";
-        let mdx_path = "/home/dwuggh/.dicts/OALDcn8/oald.mdx";
+        // let mdd_path = "/home/dwuggh/.dicts/OALDcn8/oald.mdd";
+        // let mdx_path = "/home/dwuggh/.dicts/OALDcn8/oald.mdx";
         // backends.push(Arc::new(Backend::MDict(MDictBackend::new(
         //     mdx_path, mdd_path,
         // ))));
@@ -28,8 +28,7 @@ impl Runner {
 
     pub async fn run(&self, query: Query, format: Format) -> mpsc::Receiver<Option<String>> {
         let (tx, rx) = mpsc::channel(32);
-        let _handles: Vec<()> =
-            self
+        let _handles: Vec<tokio::task::JoinHandle<()>> = self
             .backends
             .iter()
             .map(|backend| {
@@ -49,10 +48,9 @@ impl Runner {
                         log::error!("channel send error: {}", e);
                     }
                 });
-                // handle
+                handle
             })
             .collect();
-        drop(_handles);
         rx
     }
 }

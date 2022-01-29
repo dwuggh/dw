@@ -80,10 +80,10 @@ impl MDictHeader {
         // number of bytes of key block
         let key_block_size = self.read_number(&mut block_bytes_reader)?;
 
-        log::info!("number of key blocks: {}", num_key_blocks);
-        log::info!("number of entries: {}", num_entries);
-        log::info!("number of bytes of key block info: {}", key_block_info_size);
-        log::info!("number of bytes of key block: {}", key_block_size);
+        log::trace!("number of key blocks: {}", num_key_blocks);
+        log::trace!("number of entries: {}", num_entries);
+        log::trace!("number of bytes of key block info: {}", key_block_info_size);
+        log::trace!("number of bytes of key block: {}", key_block_size);
 
         // read key block info, which indicates key block's compressed and decompressed size
         let key_block_info_list = self.decode_key_block_info(f, key_block_info_size as usize)?;
@@ -149,7 +149,7 @@ impl MDictHeader {
                     f.read_exact(&mut text_head_term)?;
 
                     let text_head_term = std::str::from_utf8(&text_head_term).unwrap();
-                    log::info!("text head term: {}", text_head_term);
+                    log::trace!("text head term: {}", text_head_term);
 
                     let text_tail_size = if self.version >= 2.0 {
                         f.read_u16::<BigEndian>()?
@@ -166,11 +166,11 @@ impl MDictHeader {
                     let mut text_tail_term = vec![0; text_tail_term_size as usize];
                     f.read_exact(&mut text_tail_term)?;
                     let text_tail_term = std::str::from_utf8(&text_tail_term).unwrap();
-                    log::info!("text tail term: {}", text_tail_term);
+                    log::trace!("text tail term: {}", text_tail_term);
 
                     let key_block_compressed_size = self.read_number(f)? as usize;
                     let key_block_decompressed_size = self.read_number(f)? as usize;
-                    log::info!(
+                    log::trace!(
                         "key block size(compressed . decompressed): {} {}",
                         key_block_compressed_size,
                         key_block_decompressed_size
@@ -303,7 +303,7 @@ impl MDictHeader {
     ) -> std::io::Result<MDictHeader> {
         // let mut header_bytes_size = Cursor::new([0; 4]);
         let header_bytes_size = f.read_u32::<BigEndian>().unwrap() as usize;
-        log::info!("header_byte_size: {}", header_bytes_size);
+        log::trace!("header_byte_size: {}", header_bytes_size);
         // Dict info string, utf-16 encoding
         let mut header_bytes = vec![0; header_bytes_size];
         f.read_exact(&mut header_bytes)?;
@@ -318,7 +318,7 @@ impl MDictHeader {
         header_bytes.truncate(header_bytes.len() - 4);
         // 4 bytes: adler32 checksum of header, in little endian
         let dict_info = read_utf16_string(&header_bytes).unwrap();
-        log::info!("{}", dict_info);
+        log::trace!("{}", dict_info);
 
         let attributes = MDictHeader::read_header_attributes(&dict_info);
 
@@ -406,7 +406,7 @@ impl MDictHeader {
         for caps in re.captures_iter(text) {
             map.insert(caps[1].to_string(), caps[2].to_string());
         }
-        log::info!("{:?}", map);
+        log::trace!("{:?}", map);
         return map;
     }
 }

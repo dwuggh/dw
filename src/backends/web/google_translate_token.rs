@@ -20,13 +20,12 @@ impl State {
 }
 
 impl State {
-    fn sM(&self, a: &Chars) {
+    fn sM(&self, a: &Chars) -> String {
         let b = if let Some(a1) = &self.yr {
             a1
         } else {
             &self.window.tkk
         };
-        let c = "&tk=";
 
         let d: String = b.clone().into_iter().collect();
         let d: Vec<&str> = d.split('.').collect();
@@ -96,7 +95,9 @@ impl State {
             .into_iter()
             .map(|ch| return ch.to_string())
             .collect();
-        c.to_string().push_str(&result2)
+        let mut c = "&tk=".to_string();
+        c.push_str(&result2);
+        return c;
     }
 
     fn updateTKK(&mut self) {}
@@ -124,4 +125,18 @@ fn xr(a: u64, b: &Vec<u64>) -> u64 {
         c = c + 3;
     }
     return a;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_1() {
+        let state = State::new();
+        let text: Chars = "fuck you".chars().collect();
+        let r = state.sM(&text);
+        println!("{}", r);
+        assert_eq!(true, false);
+    }
 }

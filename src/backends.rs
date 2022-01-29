@@ -15,7 +15,7 @@ pub enum Backend {
 }
 
 impl Backend {
-    pub async fn query(&self, query: Query) -> Result<RespData, String> {
+    pub async fn query(&self, query: Query) -> anyhow::Result<RespData> {
         match self {
             Backend::Youdao(youdao) => youdao.query(query).await,
             Backend::GTrans(gtrans) => gtrans.query(query).await,

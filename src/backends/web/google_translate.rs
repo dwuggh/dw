@@ -1,3 +1,5 @@
+use anyhow::anyhow;
+
 use crate::{Query, RespData};
 
 use super::new_client;
@@ -25,7 +27,7 @@ impl GTrans {
 }
 
 impl GTrans {
-    pub async fn query(&self, query: Query) -> Result<RespData, String> {
+    pub async fn query(&self, query: Query) -> anyhow::Result<RespData> {
         log::info!("requesting google translate");
         let client = new_client();
         let params = [
@@ -45,13 +47,20 @@ impl GTrans {
             .await
             .unwrap();
         log::debug!("status: {}", resp.status());
-        let resp_data: serde_json::Value = resp.json().await.unwrap();
+        if !resp.status().is_success() {
+            return Err(anyhow!("google HTTP error with code {}", resp.status()));
+        }
+        let resp_data: serde_json::Value = resp.json().await?;
         log::debug!("raw data from google translate: {:?}", resp_data);
         // TODO figure out google translate's response format
-        let t = resp_data.as_array().unwrap()[0].as_array().unwrap();
+        let t = resp_data.as_array().ok_or(anyhow!("not an array"))?[0]
+            .as_array()
+            .ok_or(anyhow!("not an array"))?;
         let mut trans_text = String::new();
         for item in t {
-            let trans_sentence = item.as_array().unwrap()[0].as_str().unwrap();
+            let trans_sentence = item.as_array().ok_or(anyhow!("not an array"))?[0]
+                .as_str()
+                .ok_or(anyhow!("not a string"))?;
             trans_text.push_str(trans_sentence);
         }
         Ok(RespData {

@@ -98,23 +98,12 @@ async fn main() -> std::io::Result<()> {
             .is_some(),
         None => false,
     };
-    dbg!(server_is_ready);
-    // let server_is_ready = true;
 
     if !matches.is_present("standalone") && server_is_ready {
         log::info!("using server to get response");
         let params = Params::new(query, format);
-        let addr = server.unwrap().addr;
-        // let client = reqwest::Client::new();
-        // let res = client
-        //     .post(format!("http://{}/lookup", addr))
-        //     .json(&params)
-        //     .send()
-        //     .await
-        //     .unwrap();
-        // let res = res.json::<String>().await.unwrap();
-        // println!("{}", res);
-        client::lookup_ws_single(&format!("ws://{}/ws", addr), &params).await.unwrap();
+        let addr = &server.unwrap().addr;
+        client::lookup_ws_single(addr, &params).await.unwrap();
     } else {
         let runner = runner::Runner::new();
         let mut history = History::new();

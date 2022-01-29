@@ -3,7 +3,7 @@ use crate::runner;
 use crate::{formatter, Query};
 use std::sync::Mutex;
 
-use futures::{FutureExt, TryFutureExt, StreamExt, SinkExt};
+use futures::{SinkExt, StreamExt};
 use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
 use warp::ws::WebSocket;
@@ -63,7 +63,7 @@ async fn ws_handler(websocket: WebSocket) -> anyhow::Result<()> {
                     tx.send(warp::ws::Message::text(text)).await?;
                 }
             }
-            tx.send(warp::ws::Message::binary([0b0, ])).await?
+            tx.send(warp::ws::Message::binary([0b0])).await?
         }
     }
     tx.send(warp::ws::Message::close()).await?;
@@ -87,7 +87,9 @@ pub async fn init_server(addr: &str) -> tokio::io::Result<()> {
         .and_then(lookup_handler);
     let ws = warp::path("ws").and(warp::ws()).map(|ws: warp::ws::Ws| {
         ws.on_upgrade(|websocket| async {
-            ws_handler(websocket).await;
+            if let Err(e) = ws_handler(websocket).await {
+                log::error!("websocket query error: {}", e);
+            }
         })
     });
 

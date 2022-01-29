@@ -55,7 +55,6 @@ impl History {
                         text: a[2].to_string(),
                         lang: a[1].to_string(),
                     };
-                    log::debug!("loaded history item: {:?}", item);
                     item
                 })
                 .collect();

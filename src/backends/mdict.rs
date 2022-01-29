@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use mdict::mdict::MDict;
 
 use crate::{Query, RespData};
@@ -13,11 +14,11 @@ impl MDictBackend {
         MDictBackend { dict }
     }
 
-    pub async fn query(&self, query: Query) -> Result<RespData, String> {
+    pub async fn query(&self, query: Query) -> anyhow::Result<RespData> {
         let text = self
             .dict
             .lookup(&query.text)
-            .ok_or("cannot lookup".to_string())?;
+            .ok_or(anyhow!("cannot lookup"))?;
         Ok(RespData {
             backend: "mdict".to_string(),
             query,
