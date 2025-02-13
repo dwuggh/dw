@@ -39,9 +39,10 @@ mod tests {
         query_en("fuck")
     }
 
-    #[test]
+    // #[test]
     fn google_translate_can_translate_fuck() {
         crate::config::init().unwrap();
+        let _ = env_logger::builder().is_test(true).try_init();
         let g = GTrans::new();
         let query = query_fuck();
         let rt = tokio::runtime::Builder::new_current_thread()

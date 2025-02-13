@@ -14,7 +14,9 @@ impl State {
     fn new() -> State {
         State {
             yr: None,
-            window: Window { tkk: vec!['0'] },
+            window: Window {
+                tkk: "440498.1287591069".chars().collect()
+            },
         }
     }
 }
@@ -125,6 +127,12 @@ fn xr(a: u64, b: &Vec<u64>) -> u64 {
         c = c + 3;
     }
     return a;
+}
+
+pub fn getTK(text: &str) -> String {
+    let state = State::new();
+    let tk = state.sM(&text.chars().collect());
+    return tk;
 }
 
 #[cfg(test)]
